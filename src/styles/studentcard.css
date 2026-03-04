@@ -1,0 +1,52 @@
+.student-card {
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  margin-bottom: 20px;
+}
+
+.student-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.student-name {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.student-email {
+  font-size: 13px;
+  color: #6b7280;
+}
+.status-dropdown {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+}
+
+.student-card-body {
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.student-card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
+}
+.ThreeButtons {
+  display: flex;
+  gap: 5px;
+}

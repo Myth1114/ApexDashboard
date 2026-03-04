@@ -1,0 +1,22 @@
+/* Container */
+.container {
+  padding: 32px;
+}
+
+/* Card (white box) */
+.card {
+  margin-top: 32px;
+  background-color: #ffffff;
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Button group */
+.button-group {
+  display: flex;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+/* Base button */

@@ -1,0 +1,114 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+:root {
+  --sidebar-bg: #0f2a4a;
+  --sidebar-bg-light: #12365f;
+
+  --main-bg: #eef2f6;
+  --card-bg: #ffffff;
+
+  --primary: #1a6fb5;
+  --primary-light: #1565c0;
+
+  --success: #22c55e;
+  --success-light: #dcfce7;
+
+  --warning: #f59e0b;
+  --warning-light: #fef3c7;
+
+  --text-dark: #1e293b;
+  --text-light: #64748b;
+  --border: #dce3ed;
+
+  --radius: 14px;
+
+  --shadow-card-sm: 0 1px 3px rgba(11, 30, 61, 0.06),
+    0 1px 2px rgba(11, 30, 61, 0.04);
+  --shadow-card-md: 0 4px 12px rgba(11, 30, 61, 0.08),
+    0 2px 6px rgba(11, 30, 61, 0.04);
+  --transition: 0.25s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--color-bg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--color-text);
+  line-height: 1.6;
+}
+a {
+  text-decoration: none;
+}
+h1,
+h2,
+h3 {
+  font-weight: 600;
+}
+
+input,
+textarea,
+select {
+  outline: none;
+  border: 1px solid var(--color-border);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  transition: var(--transition-fast);
+}
+
+input:focus,
+textarea:focus {
+  border-color: var(--color-primary);
+}
+
+.page-container {
+  padding: 40px;
+}
+
+@media (max-width: 768px) {
+  .page-container {
+    padding: 20px;
+  }
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 11px 14px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-dark);
+  font-size: 0.88rem;
+  transition: all 250ms ease-in-out;
+  width: 100%;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(26, 111, 181, 0.1);
+  background: #ffffff;
+}
+.search-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}

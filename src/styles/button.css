@@ -1,0 +1,66 @@
+.btn {
+  padding: 12px 22px;
+  border-radius: 20px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px var(--primary-glow);
+}
+/* Success (Submit) */
+.btn-success {
+  background-color: #16a34a;
+  color: white;
+  box-shadow: 0 4px 10px rgba(22, 163, 74, 0.3);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white;
+  box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+.btn-secondary {
+  background: #f1f5f9;
+  color: var(--text-primary);
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-edit {
+  background: var(--primary);
+  color: white;
+  padding: 5px 18px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+.btn-view {
+  background: green;
+  color: white;
+  padding: 5px 18px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+.btn-delete {
+  background: red;
+  color: white;
+  box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+/* .buttonMargin {
+  margin-right: 5px;
+} */

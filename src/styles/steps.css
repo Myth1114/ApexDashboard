@@ -1,0 +1,136 @@
+/* Grid Layout */
+.academic-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+/* Responsive: Single column on small screens */
+@media (max-width: 768px) {
+  .academic-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* document stpes */
+.documents-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Each file block */
+.file-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Label */
+.file-label {
+  margin-bottom: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  color: #374151;
+}
+
+/* File input */
+.file-input {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  cursor: pointer;
+  background-color: #ffffff;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Focus state */
+.file-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+/* Hover state */
+.file-input:hover {
+  border-color: #9ca3af;
+}
+
+/* personal steps */
+
+/* Grid Layout */
+.personal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+/* Responsive: stack on small screens */
+@media (max-width: 768px) {
+  .personal-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* review steps */
+
+/* Container */
+.review-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Title */
+.review-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* Card */
+.review-card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Each row */
+.review-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+/* Remove border from last row */
+.review-row:last-child {
+  border-bottom: none;
+}
+
+/* Label */
+.review-label {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Value */
+.review-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Responsive stacking */
+@media (max-width: 640px) {
+  .review-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
