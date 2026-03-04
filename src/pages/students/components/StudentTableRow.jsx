@@ -1,13 +1,27 @@
+import { useState } from "react";
 import { useStudents } from "../../../context/useStudents";
 import { useNavigate } from "react-router-dom";
+
+import ConfirmModal from "./common/ConfirmModal";
+import {
+  STATUS_OPTIONS,
+  STATUS_CONFIG,
+} from "../../../constants/StatusOptions";
+
 import "../../../styles/studentcard.css";
 
 export default function StudentTableRow({ student }) {
   const { updateStudent, deleteStudent } = useStudents();
   const navigate = useNavigate();
 
-  const handleStatusChange = (e) => {
-    updateStudent(student.id, { status: e.target.value });
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState(null);
+
+  const confirmStatusChange = () => {
+    if (!pendingStatus) return;
+    updateStudent(student.id, { status: pendingStatus });
+    setPendingStatus(null);
+    setIsStatusModalOpen(false);
   };
 
   return (
@@ -23,16 +37,24 @@ export default function StudentTableRow({ student }) {
 
       <td>
         <select
+          className={`status-select ${
+            STATUS_CONFIG[student.status]?.className || ""
+          }`}
           value={student.status}
-          onChange={handleStatusChange}
-          className="status-select"
+          onChange={(e) => {
+            const newStatus = e.target.value;
+
+            if (newStatus === student.status) return;
+
+            setPendingStatus(newStatus);
+            setIsStatusModalOpen(true);
+          }}
         >
-          <option value="New Lead">New Lead</option>
-          <option value="Contacted">Contacted</option>
-          <option value="In Process">In Process</option>
-          <option value="Offer Received">Offer Received</option>
-          <option value="Visa Approved">Visa Approved</option>
-          <option value="Rejected">Rejected</option>
+          {STATUS_OPTIONS.map((status) => (
+            <option key={status} value={status}>
+              {STATUS_CONFIG[status].label}
+            </option>
+          ))}
         </select>
       </td>
 
@@ -59,6 +81,26 @@ export default function StudentTableRow({ student }) {
           Delete
         </button> */}
       </td>
+      <ConfirmModal
+        isOpen={isStatusModalOpen}
+        title="Confirm Status Change"
+        message={
+          pendingStatus
+            ? `You are changing status from 
+"${student.status}" 
+to 
+"${pendingStatus}". 
+
+Do you want to proceed?`
+            : ""
+        }
+        onCancel={() => {
+          setIsStatusModalOpen(false);
+          setPendingStatus(null);
+        }}
+        onConfirm={confirmStatusChange}
+        isDanger={true}
+      />
     </tr>
   );
 }

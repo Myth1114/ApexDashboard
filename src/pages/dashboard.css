@@ -198,3 +198,78 @@ tbody tr:hover {
   height: 100%;
   background: var(--primary);
 }
+/* Country Section */
+.country-section {
+  margin: 30px 0;
+}
+
+.country-section h3 {
+  margin-bottom: 15px;
+}
+
+.country-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.country-card {
+  color: white;
+  padding: 18px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: 0.3s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+.country-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.country-name {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.country-count {
+  font-size: 26px;
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+/* Australia – Deep Blue Ocean */
+.australia {
+  background: linear-gradient(135deg, #00c6ff, #0072ff);
+}
+
+/* Canada – Elegant Red Wine */
+.canada {
+  background: linear-gradient(135deg, #ff416c, #ff4b2b);
+}
+
+/* UK – Royal Indigo */
+.uk,
+.united-kingdom {
+  background: linear-gradient(135deg, #8e2de2, #4a00e0);
+}
+
+/* USA – Modern Blue Red Blend */
+.usa {
+  background: linear-gradient(135deg, #396afc, #2948ff);
+}
+
+/* Japan – Minimal Soft Rose */
+.china {
+  background: linear-gradient(135deg, #f857a6, #ff5858);
+}
+
+/* New Zealand – Teal Depth */
+.new-zealand {
+  background: linear-gradient(135deg, #00f260, #0575e6);
+}
+
+/* Default – Neutral Luxury Grey */
+.default {
+  background: linear-gradient(135deg, #434343, #000000);
+}

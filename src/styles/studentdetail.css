@@ -1,10 +1,11 @@
 .student-detail-container {
+  display: flex;
+  gap: 100px;
   padding: 40px;
 }
 
 .student-profile-card {
   background: white;
-  padding: 35px;
   border-radius: 16px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
 }
@@ -23,44 +24,78 @@
   display: inline-block;
 }
 
-/* New Lead */
-.status-new {
-  background: #f3f4f6;
-  color: #374151;
+/* Base Select Styling */
+.status-select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  border: none;
+  outline: none;
+  cursor: pointer;
 }
 
-/* Contacted */
-.status-contacted {
-  background: #ffedd5;
-  color: #c2410c;
+/* Badge style (for StudentDetail if used) */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 13px;
+  display: inline-block;
 }
 
-/* In Process */
-.status-process {
-  background: #dbeafe;
-  color: #1d4ed8;
+/* Inquiry */
+.status-inquiry {
+  background-color: #e3f2fd;
+  color: #1976d2;
 }
 
-/* Offer Received */
+/* Documents Pending */
+.status-documents {
+  background-color: #fff3e0;
+  color: #f57c00;
+}
+
+/* Applied */
+.status-applied {
+  background-color: #ede7f6;
+  color: #6a1b9a;
+}
+
+/* Offer Letter */
 .status-offer {
-  background: #ede9fe;
-  color: #6d28d9;
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+/* Tuition Paid */
+.status-paid {
+  background-color: #e0f7fa;
+  color: #00838f;
+}
+
+/* Visa Processing */
+.status-processing {
+  background-color: #f3e5f5;
+  color: #8e24aa;
 }
 
 /* Visa Approved */
-.status-visa {
-  background: #dcfce7;
-  color: #15803d;
+.status-approved {
+  background-color: #d0f8ce;
+  color: #2e7d32;
+  font-weight: 700;
 }
 
 /* Rejected */
 .status-rejected {
-  background: #fee2e2;
-  color: #b91c1c;
+  background-color: #ffebee;
+  color: #c62828;
+  font-weight: 700;
 }
 
 .detail-section {
   margin-top: 25px;
+  margin-bottom: 40px;
 }
 
 .detail-section h3 {
@@ -70,4 +105,17 @@
 
 .detail-actions {
   margin-top: 30px;
+}
+/* .document-grid {
+ 
+} */
+.documentItems {
+  display: flex;
+  flex-direction: column;
+}
+.document-item {
+  background: #f8f9fa;
+  padding: 5px;
+  border-radius: 8px;
+  cursor: pointer;
 }

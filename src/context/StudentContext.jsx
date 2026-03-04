@@ -14,9 +14,25 @@ export const StudentProvider = ({ children }) => {
 
   const addStudent = (studentData) => {
     const newStudent = {
-      ...studentData,
       id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
+      ...studentData,
+
+      statusHistory: [
+        {
+          status: studentData.status,
+          date: new Date().toISOString(),
+        },
+      ],
+
+      documents: {
+        passport: false,
+        transcript: false,
+        englishTest: false,
+        sop: false,
+        financialDocs: false,
+        offerLetter: false,
+        visaGrant: false,
+      },
     };
 
     setStudents((prev) => [...prev, newStudent]);
@@ -24,9 +40,26 @@ export const StudentProvider = ({ children }) => {
 
   const updateStudent = (id, updatedData) => {
     setStudents((prev) =>
-      prev.map((student) =>
-        student.id === id ? { ...student, ...updatedData } : student
-      )
+      prev.map((student) => {
+        if (student.id !== id) return student;
+
+        const statusChanged =
+          updatedData.status && updatedData.status !== student.status;
+
+        return {
+          ...student,
+          ...updatedData,
+          statusHistory: statusChanged
+            ? [
+                ...(student.statusHistory || []),
+                {
+                  status: updatedData.status,
+                  date: new Date().toISOString(),
+                },
+              ]
+            : student.statusHistory || [],
+        };
+      })
     );
   };
 

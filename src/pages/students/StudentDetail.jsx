@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { STATUS_CONFIG } from "../../constants/StatusOptions";
 import { useStudents } from "../../context/useStudents";
 import "../../styles/studentdetail.css";
 import "../students/components/common/ConfirmModal";
@@ -8,27 +9,10 @@ import ConfirmModal from "../students/components/common/ConfirmModal";
 export default function StudentDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { students, deleteStudent } = useStudents();
+  const { students, deleteStudent, updateStudent } = useStudents();
   const student = students.find((s) => s.id === id);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
-  const getStatusClass = (status) => {
-    switch (status) {
-      case "Visa Approved":
-        return "status-visa";
-      case "Rejected":
-        return "status-rejected";
-      case "In Process":
-        return "status-process";
-      case "Offer Received":
-        return "status-offer";
-      case "Contacted":
-        return "status-contacted";
-      case "New Lead":
-      default:
-        return "status-new";
-    }
-  };
   if (!student) {
     return <div className="student-detail-container">Student not found</div>;
   }
@@ -44,8 +28,12 @@ export default function StudentDetail() {
             {/* <p className="student-email">{student.contact.email}</p> */}
           </div>
 
-          <div className={`status-badge ${getStatusClass(student.status)}`}>
-            {student.status}
+          <div
+            className={`status-badge ${
+              STATUS_CONFIG[student.status]?.className || ""
+            }`}
+          >
+            {STATUS_CONFIG[student.status]?.label}
           </div>
         </div>
 
@@ -100,6 +88,30 @@ export default function StudentDetail() {
           </button>
         </div>
       </div>
+
+      <div className="document-grid">
+        <h3>Document Checklist</h3>
+        <div className="documentItems">
+          {Object.keys(student.documents).map((docKey) => (
+            <label key={docKey} className="document-item">
+              <input
+                type="checkbox"
+                checked={student.documents[docKey]}
+                onChange={() =>
+                  updateStudent(student.id, {
+                    documents: {
+                      ...student.documents,
+                      [docKey]: !student.documents[docKey],
+                    },
+                  })
+                }
+              />
+              {docKey}
+            </label>
+          ))}
+        </div>
+      </div>
+
       <ConfirmModal
         isOpen={isDeleteOpen}
         title="Delete Student"

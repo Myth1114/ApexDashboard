@@ -7,6 +7,7 @@ import DocumentsStep from "./components/step/DocumentsStep";
 import ReviewStep from "./components/step/ReviewStep";
 import StepIndicator from "./components/StepIndicator";
 import "../../styles/addstudents.css";
+import ConfirmModal from "./components/common/ConfirmModal";
 
 export default function EditStudent() {
   const { id } = useParams();
@@ -17,6 +18,7 @@ export default function EditStudent() {
 
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState(existingStudent);
+  const [isEditConfirmOpen, setIsEditConfirmOpen] = useState(false);
 
   if (!existingStudent) {
     return <div className="add-student-container">Student not found</div>;
@@ -34,7 +36,10 @@ export default function EditStudent() {
       },
     }));
   };
-
+  const confirmUpdate = () => {
+    handleUpdate();
+    setIsEditConfirmOpen(false);
+  };
   const renderStep = () => {
     switch (step) {
       case 1:
@@ -73,11 +78,22 @@ export default function EditStudent() {
             Next
           </button>
         ) : (
-          <button className="btn btn-success" onClick={handleUpdate}>
+          <button
+            className="btn btn-success"
+            type="button"
+            onClick={() => setIsEditConfirmOpen(true)}
+          >
             Update Student
           </button>
         )}
       </div>
+      <ConfirmModal
+        isOpen={isEditConfirmOpen}
+        title="Confirm Update"
+        message="Are you sure you want to update this student's information?"
+        onCancel={() => setIsEditConfirmOpen(false)}
+        onConfirm={confirmUpdate}
+      />
     </div>
   );
 }
