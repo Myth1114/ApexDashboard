@@ -147,7 +147,7 @@ tbody tr:hover {
   font-weight: 500;
 }
 .status {
-  padding: 6px 14px;
+  /* padding: 6px 14px; */
   border-radius: 999px;
   font-size: 13px;
   font-weight: 500;
@@ -216,6 +216,7 @@ tbody tr:hover {
 .country-card {
   color: white;
   padding: 18px;
+  text-align: center;
   border-radius: 14px;
   cursor: pointer;
   transition: 0.3s ease;
@@ -240,7 +241,11 @@ tbody tr:hover {
 
 /* Australia – Deep Blue Ocean */
 .australia {
-  background: linear-gradient(135deg, #00c6ff, #0072ff);
+  background: linear-gradient(
+    360deg,
+    rgb(107, 119, 250) 0%,
+    rgb(63, 76, 250) 51%
+  );
 }
 
 /* Canada – Elegant Red Wine */
@@ -251,7 +256,11 @@ tbody tr:hover {
 /* UK – Royal Indigo */
 .uk,
 .united-kingdom {
-  background: linear-gradient(135deg, #8e2de2, #4a00e0);
+  background: linear-gradient(
+    360deg,
+    rgba(69, 209, 200, 1) 0%,
+    rgba(31, 181, 172, 1) 51%
+  );
 }
 
 /* USA – Modern Blue Red Blend */
@@ -261,12 +270,20 @@ tbody tr:hover {
 
 /* Japan – Minimal Soft Rose */
 .china {
-  background: linear-gradient(135deg, #f857a6, #ff5858);
+  background: linear-gradient(
+    360deg,
+    rgba(255, 120, 120, 1) 0%,
+    rgba(255, 22, 22, 1) 51%
+  );
 }
 
 /* New Zealand – Teal Depth */
 .new-zealand {
-  background: linear-gradient(135deg, #00f260, #0575e6);
+  background: linear-gradient(
+    360deg,
+    rgba(255, 158, 79, 1) 0%,
+    rgba(253, 126, 20, 1) 51%
+  );
 }
 
 /* Default – Neutral Luxury Grey */

@@ -5,6 +5,7 @@ import { useStudents } from "../../context/useStudents";
 import "../../styles/studentdetail.css";
 import "../students/components/common/ConfirmModal";
 import ConfirmModal from "../students/components/common/ConfirmModal";
+import Timeline from "./components/timeline/Timeline";
 
 export default function StudentDetail() {
   const { id } = useParams();
@@ -111,6 +112,8 @@ export default function StudentDetail() {
           ))}
         </div>
       </div>
+
+      <Timeline timeline={student.timeline} />
 
       <ConfirmModal
         isOpen={isDeleteOpen}

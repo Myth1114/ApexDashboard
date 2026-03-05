@@ -114,8 +114,11 @@
   flex-direction: column;
 }
 .document-item {
+  display: flex;
+  align-items: center;
   background: #f8f9fa;
   padding: 5px;
   border-radius: 8px;
   cursor: pointer;
+  gap: 5px;
 }

@@ -29,4 +29,13 @@ export const initialStudent = {
   },
   status: "",
   notes: "",
+
+  timeline: [
+    {
+      id: Date.now(),
+      message: "Student profile created",
+      date: new Date().toISOString(),
+      type: "system",
+    },
+  ],
 };

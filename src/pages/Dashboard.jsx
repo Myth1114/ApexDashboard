@@ -74,7 +74,7 @@ export default function Dashboard() {
   ).length;
 
   const countryStats = students.reduce((acc, student) => {
-    const country = student.academic?.preferredCountry?.trim();
+    const country = student.academic?.preferredCountry?.trim()?.toUpperCase();
 
     if (!country) return acc; // ignore empty countries
 

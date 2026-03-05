@@ -12,15 +12,26 @@ export const StudentProvider = ({ children }) => {
     localStorage.setItem("students", JSON.stringify(students));
   }, [students]);
 
+  // ADD STUDENT
   const addStudent = (studentData) => {
     const newStudent = {
       id: Date.now().toString(),
+      createdAt: new Date().toISOString(),
       ...studentData,
 
       statusHistory: [
         {
           status: studentData.status,
           date: new Date().toISOString(),
+        },
+      ],
+
+      timeline: [
+        {
+          id: Date.now(),
+          message: "Student profile created",
+          date: new Date().toISOString(),
+          type: "system",
         },
       ],
 
@@ -38,31 +49,41 @@ export const StudentProvider = ({ children }) => {
     setStudents((prev) => [...prev, newStudent]);
   };
 
-  const updateStudent = (id, updatedData) => {
+  // UPDATE STUDENT
+  const updateStudent = (id, updates) => {
     setStudents((prev) =>
       prev.map((student) => {
         if (student.id !== id) return student;
 
-        const statusChanged =
-          updatedData.status && updatedData.status !== student.status;
+        const newTimeline = [...(student.timeline || [])];
+        const newStatusHistory = [...(student.statusHistory || [])];
+
+        // If status changed
+        if (updates.status && updates.status !== student.status) {
+          newTimeline.push({
+            id: Date.now(),
+            message: `Status changed from ${student.status} to ${updates.status}`,
+            date: new Date().toISOString(),
+            type: "status",
+          });
+
+          newStatusHistory.push({
+            status: updates.status,
+            date: new Date().toISOString(),
+          });
+        }
 
         return {
           ...student,
-          ...updatedData,
-          statusHistory: statusChanged
-            ? [
-                ...(student.statusHistory || []),
-                {
-                  status: updatedData.status,
-                  date: new Date().toISOString(),
-                },
-              ]
-            : student.statusHistory || [],
+          ...updates,
+          timeline: newTimeline,
+          statusHistory: newStatusHistory,
         };
       })
     );
   };
 
+  // DELETE STUDENT
   const deleteStudent = (id) => {
     setStudents((prev) => prev.filter((student) => student.id !== id));
   };
