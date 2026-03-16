@@ -5,6 +5,7 @@ import { useStudents } from "../../context/useStudents";
 import "../../styles/studentdetail.css";
 import "../students/components/common/ConfirmModal";
 import ConfirmModal from "../students/components/common/ConfirmModal";
+import Notes from "./components/Notes";
 import Timeline from "./components/timeline/Timeline";
 
 export default function StudentDetail() {
@@ -60,6 +61,14 @@ export default function StudentDetail() {
         <div className="detail-section">
           <h3>Academic Information</h3>
           <p>
+            <strong>Highest Level of Education:</strong>
+            {student.academic.highestLevelofEducation}
+          </p>
+          <p>
+            <strong>GPA or Percentage:</strong>
+            {student.academic.GPA}
+          </p>
+          <p>
             <strong>Preferred Country:</strong>
             {student.academic.preferredCountry}
           </p>
@@ -114,7 +123,7 @@ export default function StudentDetail() {
       </div>
 
       <Timeline timeline={student.timeline} />
-
+      <Notes student={student} />
       <ConfirmModal
         isOpen={isDeleteOpen}
         title="Delete Student"

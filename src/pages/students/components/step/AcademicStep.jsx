@@ -5,6 +5,18 @@ export default function AcademicStep({ formData, updateField }) {
   return (
     <div className="academic-grid">
       <Input
+        label="Highest Level of Education"
+        value={formData.academic.highestLevelofEducation}
+        onChange={(e) =>
+          updateField("academic", "highestLevelofEducation", e.target.value)
+        }
+      />
+      <Input
+        label="GPA or Percentage"
+        value={formData.academic.GPA}
+        onChange={(e) => updateField("academic", "GPA", e.target.value)}
+      />
+      <Input
         label="Preferred Country"
         value={formData.academic.preferredCountry}
         onChange={(e) =>

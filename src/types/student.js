@@ -21,14 +21,16 @@ export const initialStudent = {
     intake: "",
     englishTest: "",
     englishTestScore: "",
+    highestLevelofEducation: "",
+    GPA: "",
   },
   documents: {
     passportCopy: null,
     transcript: null,
     cv: null,
   },
-  status: "",
-  notes: "",
+  status: "New Lead",
+  notes: [],
 
   timeline: [
     {
@@ -38,4 +40,5 @@ export const initialStudent = {
       type: "system",
     },
   ],
+  statusHistory: [],
 };

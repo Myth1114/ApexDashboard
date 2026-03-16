@@ -28,7 +28,16 @@ export default function ReviewStep({ formData }) {
             {formData.personal.passportNumber}
           </span>
         </div>
-
+        <div className="review-row">
+          <span className="review-label">Highest Level of Education</span>
+          <span className="review-value">
+            {formData.academic.highestLevelofEducation}
+          </span>
+        </div>
+        <div className="review-row">
+          <span className="review-label">GPA or Percentage:</span>
+          <span className="review-value">{formData.academic.GPA}</span>
+        </div>
         <div className="review-row">
           <span className="review-label">Preferred Country</span>
           <span className="review-value">

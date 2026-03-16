@@ -1,91 +1,98 @@
 import { createContext, useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
 
 export const StudentContext = createContext();
 
 export const StudentProvider = ({ children }) => {
-  const [students, setStudents] = useState(() => {
-    const stored = localStorage.getItem("students");
-    return stored ? JSON.parse(stored) : [];
-  });
+  const [students, setStudents] = useState([]);
 
   useEffect(() => {
-    localStorage.setItem("students", JSON.stringify(students));
-  }, [students]);
+    fetchStudents();
+  }, []);
 
-  // ADD STUDENT
-  const addStudent = (studentData) => {
-    const newStudent = {
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      ...studentData,
+  // FETCH STUDENTS
+  const fetchStudents = async () => {
+    const { data, error } = await supabase.from("students").select("*");
 
-      statusHistory: [
-        {
-          status: studentData.status,
-          date: new Date().toISOString(),
-        },
-      ],
+    if (!error) {
+      setStudents(data);
+    } else {
+      console.error(error);
+    }
+  };
 
-      timeline: [
-        {
-          id: Date.now(),
-          message: "Student profile created",
-          date: new Date().toISOString(),
-          type: "system",
-        },
-      ],
+  // ADD NOTE
+  const addNote = async (studentId, message) => {
+    const student = students.find((s) => s.id === studentId);
 
-      documents: {
-        passport: false,
-        transcript: false,
-        englishTest: false,
-        sop: false,
-        financialDocs: false,
-        offerLetter: false,
-        visaGrant: false,
-      },
+    const newNote = {
+      id: Date.now(),
+      message,
+      author: "Admin",
+      date: new Date().toISOString(),
     };
 
-    setStudents((prev) => [...prev, newStudent]);
+    const updatedNotes = [...(student.notes ?? []), newNote];
+
+    const { data, error } = await supabase
+      .from("students")
+      .update({ notes: updatedNotes })
+      .eq("id", studentId)
+      .select();
+
+    if (!error) {
+      setStudents((prev) =>
+        prev.map((s) => (s.id === studentId ? data[0] : s))
+      );
+    }
+  };
+
+  // ADD STUDENT
+  const addStudent = async (studentData) => {
+    const { data, error } = await supabase
+      .from("students")
+      .insert([studentData])
+      .select();
+
+    if (!error) {
+      setStudents((prev) => [...prev, data[0]]);
+    }
   };
 
   // UPDATE STUDENT
-  const updateStudent = (id, updates) => {
-    setStudents((prev) =>
-      prev.map((student) => {
-        if (student.id !== id) return student;
+  const updateStudent = async (id, updates) => {
+    const student = students.find((s) => s.id === id);
 
-        const newTimeline = [...(student.timeline || [])];
-        const newStatusHistory = [...(student.statusHistory || [])];
+    const newTimeline = [...(student.timeline || [])];
 
-        // If status changed
-        if (updates.status && updates.status !== student.status) {
-          newTimeline.push({
-            id: Date.now(),
-            message: `Status changed from ${student.status} to ${updates.status}`,
-            date: new Date().toISOString(),
-            type: "status",
-          });
+    if (updates.status && updates.status !== student.status) {
+      newTimeline.push({
+        id: Date.now(),
+        message: `Status changed from ${student.status} to ${updates.status}`,
+        date: new Date().toISOString(),
+        type: "status",
+      });
+    }
 
-          newStatusHistory.push({
-            status: updates.status,
-            date: new Date().toISOString(),
-          });
-        }
-
-        return {
-          ...student,
-          ...updates,
-          timeline: newTimeline,
-          statusHistory: newStatusHistory,
-        };
+    const { data, error } = await supabase
+      .from("students")
+      .update({
+        ...updates,
+        timeline: newTimeline,
       })
-    );
+      .eq("id", id)
+      .select();
+
+    if (!error) {
+      setStudents((prev) => prev.map((s) => (s.id === id ? data[0] : s)));
+    }
   };
 
   // DELETE STUDENT
-  const deleteStudent = (id) => {
-    setStudents((prev) => prev.filter((student) => student.id !== id));
+  const deleteStudent = async (id) => {
+    await supabase.from("students").delete().eq("id", id);
+
+    setStudents((prev) => prev.filter((s) => s.id !== id));
   };
 
   return (
@@ -95,6 +102,7 @@ export const StudentProvider = ({ children }) => {
         addStudent,
         updateStudent,
         deleteStudent,
+        addNote,
       }}
     >
       {children}
