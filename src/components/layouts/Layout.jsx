@@ -11,12 +11,14 @@ export default function Layout({ children }) {
 
   return (
     <div className="layout">
-      <Sidebar isOpen={sidebarOpen} closeSidebar={closeSidebar} />
-
-      {sidebarOpen && <div className="overlay" onClick={closeSidebar}></div>}
-
+      <div className="SidebarContainer">
+        <Sidebar isOpen={sidebarOpen} closeSidebar={closeSidebar} />
+        {sidebarOpen && <div className="overlay" onClick={closeSidebar}></div>}
+      </div>
       <div className="content">
-        <Topbar toggleSidebar={toggleSidebar} />
+        <div className="TopbarContainer">
+          <Topbar toggleSidebar={toggleSidebar} />
+        </div>
         <div className="main-content">{children}</div>
       </div>
     </div>

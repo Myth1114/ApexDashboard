@@ -92,9 +92,9 @@ export default function Dashboard() {
   }));
   return (
     <>
-      <div className="dashboard-header fade-in-up">
+      {/* <div className="dashboard-header fade-in-up">
         <h1>Dashboard Overview</h1>
-      </div>
+      </div> */}
 
       {/* KPI Cards */}
       <div className="kpi-grid">

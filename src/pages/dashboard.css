@@ -53,14 +53,8 @@
 .student-table-container {
   background: var(--color-white);
   border-radius: var(--radius-md);
-  padding: 20px;
+  padding: 0px;
   box-shadow: var(--shadow-sm);
-}
-
-.table-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 15px;
 }
 
 .search-input {
@@ -74,7 +68,7 @@
 }
 
 .table-header {
-  padding: 20px 25px;
+  padding: 20px 0 20px 0;
   border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;

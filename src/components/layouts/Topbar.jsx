@@ -7,9 +7,7 @@ export default function Topbar({ toggleSidebar }) {
       <button className="hamburger" onClick={toggleSidebar}>
         ☰
       </button>
-
-      <h3>Overview of all Student Records</h3>
-
+      <h3>Dashboard</h3>
       <NavLink className="btn btn-primary" to="/students/add">
         +Add Student
       </NavLink>
