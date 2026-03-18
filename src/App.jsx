@@ -8,6 +8,9 @@ import EditStudent from "./pages/students/EditStudent";
 
 import "./index.css";
 import "./styles/button.css";
+import ProtectedRoute from "./pages/students/components/ProtectedRoute";
+import Login from "./pages/Login";
+import { ToastContainer } from "react-toastify";
 
 function Students() {
   return <h1>Student Records</h1>;
@@ -15,18 +18,39 @@ function Students() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Layout>
+    <>
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        theme="colored"
+      />
+      <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Dashboard />} />
+          {/* 🔓 Public Route */}
+          <Route path="/login" element={<Login />} />
 
-          <Route path="/students" element={<Students />} />
-          <Route path="/students/add" element={<AddStudent />} />
-          <Route path="/students/:id" element={<StudentDetail />} />
-          <Route path="/students/edit/:id" element={<EditStudent />} />
+          {/* 🔐 Protected Routes */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="students" element={<Students />} />
+            <Route path="students/add" element={<AddStudent />} />
+            <Route path="students/:id" element={<StudentDetail />} />
+            <Route path="students/edit/:id" element={<EditStudent />} />
+          </Route>
         </Routes>
-      </Layout>
-    </BrowserRouter>
+      </BrowserRouter>
+    </>
   );
 }
 

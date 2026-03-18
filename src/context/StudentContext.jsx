@@ -1,17 +1,73 @@
 import { createContext, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { toast } from "react-toastify";
 
 export const StudentContext = createContext();
 
 export const StudentProvider = ({ children }) => {
   const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchStudents();
-  }, []);
+    // 🔥 Listen for auth changes
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        if (session?.user) {
+          fetchStudents(); // ✅ fetch AFTER login
+        } else {
+          setStudents([]); // clear on logout
+        }
+      }
+    );
 
+    // 🔥 Also check if already logged in (refresh case)
+    const checkUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      if (data.user) {
+        fetchStudents();
+      }
+    };
+
+    checkUser();
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+  useEffect(() => {
+    const channel = supabase
+      .channel("students-changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "students" },
+        (payload) => {
+          console.log("Realtime change:", payload);
+
+          if (payload.eventType === "INSERT") {
+            setStudents((prev) => [...prev, payload.new]);
+          }
+
+          if (payload.eventType === "UPDATE") {
+            setStudents((prev) =>
+              prev.map((s) => (s.id === payload.new.id ? payload.new : s))
+            );
+          }
+
+          if (payload.eventType === "DELETE") {
+            setStudents((prev) => prev.filter((s) => s.id !== payload.old.id));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
   // FETCH STUDENTS
   const fetchStudents = async () => {
+    setLoading(true);
+
     const { data, error } = await supabase.from("students").select("*");
 
     if (!error) {
@@ -19,6 +75,8 @@ export const StudentProvider = ({ children }) => {
     } else {
       console.error(error);
     }
+
+    setLoading(false);
   };
 
   // ADD NOTE
@@ -44,6 +102,9 @@ export const StudentProvider = ({ children }) => {
       setStudents((prev) =>
         prev.map((s) => (s.id === studentId ? data[0] : s))
       );
+      toast.success("Note added 📝");
+    } else {
+      toast.error("Failed to add note ❌");
     }
   };
 
@@ -56,6 +117,9 @@ export const StudentProvider = ({ children }) => {
 
     if (!error) {
       setStudents((prev) => [...prev, data[0]]);
+      toast.success("Student added ✅");
+    } else {
+      toast.error("Failed ❌");
     }
   };
 
@@ -85,20 +149,24 @@ export const StudentProvider = ({ children }) => {
 
     if (!error) {
       setStudents((prev) => prev.map((s) => (s.id === id ? data[0] : s)));
+      toast.success("Student updated ✏️");
+    } else {
+      toast.error("Update failed ❌");
     }
   };
 
   // DELETE STUDENT
   const deleteStudent = async (id) => {
     await supabase.from("students").delete().eq("id", id);
-
     setStudents((prev) => prev.filter((s) => s.id !== id));
+    toast.success("Student deleted 🗑️");
   };
 
   return (
     <StudentContext.Provider
       value={{
         students,
+        loading,
         addStudent,
         updateStudent,
         deleteStudent,

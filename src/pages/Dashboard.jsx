@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useStudents } from "../context/useStudents";
 import StudentTableRow from "./students/components/StudentTableRow";
-
+import { signOut } from "../lib/auth";
 import "./dashboard.css";
 import { STATUS_CONFIG, STATUS_OPTIONS } from "../constants/StatusOptions";
+import Spinner from "./students/components/Spinner";
 
 export default function Dashboard() {
-  const { students } = useStudents();
-  const [search, setSearch] = useState("");
+  const { students, loading } = useStudents();
 
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
@@ -29,7 +31,7 @@ export default function Dashboard() {
     .filter((student) => {
       const firstName = student.personal?.firstName || "";
       const lastName = student.personal?.lastName || "";
-      const email = student.personal?.email || "";
+      const email = student.contact?.email || "";
 
       const fullName = `${firstName} ${lastName}`.toLowerCase();
       const searchValue = debouncedSearch.toLowerCase();
@@ -90,120 +92,135 @@ export default function Dashboard() {
     country,
     count,
   }));
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/login"); // 🔥 IMPORTANT
+  };
   return (
     <>
-      {/* <div className="dashboard-header fade-in-up">
-        <h1>Dashboard Overview</h1>
-      </div> */}
-
-      {/* KPI Cards */}
-      <div className="kpi-grid">
-        <div className="kpi-card fade-in-up">
-          <div className="kpi-title">Total Students</div>
-          <div className="kpi-value">{totalStudents}</div>
-        </div>
-
-        <div className="kpi-card fade-in-up">
-          <div className="kpi-title">Pending Applications</div>
-          <div className="kpi-value">{pendingApplications}</div>
-        </div>
-
-        <div className="kpi-card fade-in-up">
-          <div className="kpi-title">Visa Approved</div>
-          <div className="kpi-value">{visaApprovedCount}</div>
-        </div>
-      </div>
-      {/* countries */}
-      <div className="country-section fade-in-up">
-        <h3>Applications by Country</h3>
-
-        <div className="country-grid">
-          {countryData.map(({ country, count }) => (
-            <div
-              key={country}
-              className={`country-card ${country
-                .toLowerCase()
-                .replace(/\s+/g, "-")}`}
-              onClick={() => setCountryFilter(country)}
-            >
-              <div className="country-name">{country}</div>
-              <div className="country-count">{count}</div>
+      {loading ? (
+        <Spinner />
+      ) : (
+        <div className="">
+          <div className="kpi-grid">
+            <div className="kpi-card fade-in-up">
+              <div className="kpi-title">Total Students</div>
+              <div className="kpi-value">{totalStudents}</div>
             </div>
-          ))}
-        </div>
-      </div>
-      {/* Student Table */}
-      <div className="student-table-container fade-in-up">
-        <div className="table-header">
-          <h3>Recent Students</h3>
-          {/* <input
+
+            <div className="kpi-card fade-in-up">
+              <div className="kpi-title">Pending Applications</div>
+              <div className="kpi-value">{pendingApplications}</div>
+            </div>
+
+            <div className="kpi-card fade-in-up">
+              <div className="kpi-title">Visa Approved</div>
+              <div className="kpi-value">{visaApprovedCount}</div>
+            </div>
+          </div>
+          {/* countries */}
+          <div className="country-section fade-in-up">
+            <h3>Applications by Country</h3>
+
+            <div className="country-grid">
+              {countryData.map(({ country, count }) => (
+                <div
+                  key={country}
+                  className={`country-card ${country
+                    .toLowerCase()
+                    .replace(/\s+/g, "-")}`}
+                  onClick={() => setCountryFilter(country)}
+                >
+                  <div className="country-name">{country}</div>
+                  <div className="country-count">{count}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Student Table */}
+          <div className="student-table-container fade-in-up">
+            <div className="table-header">
+              <h3>Recent Students</h3>
+              {/* <input
             type="text"
             placeholder="Search student..."
             className="search-input"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           /> */}
+            </div>
+            <div className="dashboard-controls">
+              <input
+                type="text"
+                placeholder="Search by name or email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input"
+              />
+
+              <select
+                className="filter-select"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="">All Status</option>
+
+                {STATUS_OPTIONS.map((status) => (
+                  <option key={status} value={status}>
+                    {STATUS_CONFIG[status].label}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="filter-select"
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="name">Sort by Name</option>
+              </select>
+            </div>
+
+            <table className="student-table">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Country</th>
+                  <th>Course</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan="5">
+                      <Spinner />
+                    </td>
+                  </tr>
+                ) : filteredStudents.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="no-data">
+                      No students found.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredStudents.map((student) => (
+                    <StudentTableRow key={student.id} student={student} />
+                  ))
+                )}
+              </tbody>
+            </table>
+            <button className="btn btn-primary" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
         </div>
-        <div className="dashboard-controls">
-          <input
-            type="text"
-            placeholder="Search by name or email..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-
-          <select
-            className="filter-select"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="">All Status</option>
-
-            {STATUS_OPTIONS.map((status) => (
-              <option key={status} value={status}>
-                {STATUS_CONFIG[status].label}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="filter-select"
-          >
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="name">Sort by Name</option>
-          </select>
-        </div>
-
-        <table className="student-table">
-          <thead>
-            <tr>
-              <th>Student</th>
-              <th>Country</th>
-              <th>Course</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {filteredStudents.length === 0 ? (
-              <tr>
-                <td colSpan="5" className="no-data">
-                  No students found.
-                </td>
-              </tr>
-            ) : (
-              filteredStudents.map((student) => (
-                <StudentTableRow key={student.id} student={student} />
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      )}
     </>
   );
 }

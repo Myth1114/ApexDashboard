@@ -1,5 +1,6 @@
 import { HomeIcon, LayoutDashboard, UserPlus } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { signOut } from "../../lib/auth";
 import "./layout.css";
 
 export default function Sidebar({ isOpen, closeSidebar }) {
