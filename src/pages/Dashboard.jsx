@@ -8,61 +8,28 @@ import { STATUS_CONFIG, STATUS_OPTIONS } from "../constants/StatusOptions";
 import Spinner from "./students/components/Spinner";
 
 export default function Dashboard() {
-  const { students, loading } = useStudents();
-
+  const {
+    students,
+    loading,
+    page,
+    totalCount,
+    limit,
+    setPage,
+    search,
+    setSearch,
+    status,
+    setStatus,
+    country,
+    setCountry,
+    sortBy,
+    setSortBy,
+  } = useStudents();
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState("");
+
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  const [statusFilter, setStatusFilter] = useState("");
-  const [sortBy, setSortBy] = useState("newest");
-
-  const [countryFilter, setCountryFilter] = useState("");
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchTerm);
-    }, 400); // 400ms delay
-
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
-
-  const filteredStudents = students
-    .filter((student) => {
-      const firstName = student.personal?.firstName || "";
-      const lastName = student.personal?.lastName || "";
-      const email = student.contact?.email || "";
-
-      const fullName = `${firstName} ${lastName}`.toLowerCase();
-      const searchValue = debouncedSearch.toLowerCase();
-
-      const matchesSearch =
-        fullName.includes(searchValue) ||
-        email.toLowerCase().includes(searchValue);
-
-      const matchesStatus = !statusFilter || student.status === statusFilter;
-
-      const matchesCountry =
-        !countryFilter || student.academic?.preferredCountry === countryFilter;
-
-      return matchesSearch && matchesStatus && matchesCountry;
-    })
-    .sort((a, b) => {
-      if (sortBy === "newest") {
-        return new Date(b.createdAt) - new Date(a.createdAt);
-      }
-      if (sortBy === "oldest") {
-        return new Date(a.createdAt) - new Date(b.createdAt);
-      }
-      if (sortBy === "name") {
-        const nameA = a.personal?.firstName || "";
-        const nameB = b.personal?.firstName || "";
-        return nameA.localeCompare(nameB);
-      }
-      return 0;
-    });
-
-  const totalStudents = students.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  const totalStudents = totalCount;
 
   const pendingApplications = students.filter(
     (s) =>
@@ -77,26 +44,41 @@ export default function Dashboard() {
 
   const countryStats = students.reduce((acc, student) => {
     const country = student.academic?.preferredCountry?.trim()?.toUpperCase();
-
     if (!country) return acc; // ignore empty countries
-
     if (!acc[country]) {
       acc[country] = 0;
     }
-
     acc[country] += 1;
-
     return acc;
   }, {});
+
   const countryData = Object.entries(countryStats).map(([country, count]) => ({
     country,
     count,
   }));
 
+  const filteredStudents = students.filter((student) => {
+    const firstName = student.personal?.firstName || "";
+    const lastName = student.personal?.lastName || "";
+    const email = student.personal?.email || "";
+
+    const fullText = `${firstName} ${lastName} ${email}`.toLowerCase();
+
+    return fullText.includes(debouncedSearch.toLowerCase());
+  });
+
   const handleLogout = async () => {
     await signOut();
     navigate("/login"); // 🔥 IMPORTANT
   };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [search]);
   return (
     <>
       {loading ? (
@@ -130,7 +112,7 @@ export default function Dashboard() {
                   className={`country-card ${country
                     .toLowerCase()
                     .replace(/\s+/g, "-")}`}
-                  onClick={() => setCountryFilter(country)}
+                  onClick={() => setCountry(country)}
                 >
                   <div className="country-name">{country}</div>
                   <div className="country-count">{count}</div>
@@ -154,15 +136,15 @@ export default function Dashboard() {
               <input
                 type="text"
                 placeholder="Search by name or email..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
                 className="search-input"
               />
 
               <select
                 className="filter-select"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
               >
                 <option value="">All Status</option>
 
@@ -215,10 +197,39 @@ export default function Dashboard() {
                 )}
               </tbody>
             </table>
-            <button className="btn btn-primary" onClick={handleLogout}>
-              Logout
-            </button>
+            <div className="pagination-container">
+              <button
+                className="pagination-btn"
+                disabled={page === 1}
+                onClick={() => setPage(page - 1)}
+              >
+                ◀
+              </button>
+
+              {[...Array(totalPages)].map((_, index) => (
+                <button
+                  key={index}
+                  className={`pagination-number ${
+                    page === index + 1 ? "active" : ""
+                  }`}
+                  onClick={() => setPage(index + 1)}
+                >
+                  {index + 1}
+                </button>
+              ))}
+
+              <button
+                className="pagination-btn"
+                disabled={page === totalPages}
+                onClick={() => setPage(page + 1)}
+              >
+                ▶
+              </button>
+            </div>
           </div>
+          <button className="btn btn-primary" onClick={handleLogout}>
+            Logout
+          </button>
         </div>
       )}
     </>

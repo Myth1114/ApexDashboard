@@ -8,6 +8,15 @@ export const StudentProvider = ({ children }) => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10); // 10 per page
+  const [totalCount, setTotalCount] = useState(0);
+
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("");
+  const [country, setCountry] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
+
   useEffect(() => {
     // 🔥 Listen for auth changes
     const { data: listener } = supabase.auth.onAuthStateChange(
@@ -64,19 +73,69 @@ export const StudentProvider = ({ children }) => {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  // when filters change → reset page
+  useEffect(() => {
+    if (search.trim() === "") {
+      fetchStudents(1); // load all again
+    } else {
+      const delay = setTimeout(() => {
+        fetchStudents(1);
+      }, 400); // debounce
+
+      return () => clearTimeout(delay);
+    }
+  }, [status, country, sortBy]);
+
+  // when page changes
+  useEffect(() => {
+    fetchStudents(page);
+  }, [page]);
+
   // FETCH STUDENTS
-  const fetchStudents = async () => {
+  const fetchStudents = async (pageNumber = 1) => {
     setLoading(true);
 
-    const { data, error } = await supabase.from("students").select("*");
+    const from = (pageNumber - 1) * limit;
+    const to = from + limit - 1;
+
+    let query = supabase.from("students").select("*", { count: "exact" });
+
+    // SEARCH
+
+    // STATUS
+    if (status) {
+      query = query.eq("status", status);
+    }
+
+    // COUNTRY
+    if (country) {
+      query = query.eq("academic->>preferredCountry", country);
+    }
+
+    // SORT
+    if (sortBy === "newest") {
+      query = query.order("created_at", { ascending: false });
+    } else if (sortBy === "oldest") {
+      query = query.order("created_at", { ascending: true });
+    } else if (sortBy === "name") {
+      query = query.order("personal->>firstName", { ascending: true });
+    }
+
+    const { data, error, count } = await query.range(from, to);
 
     if (!error) {
       setStudents(data);
+      setTotalCount(count);
+      setPage(pageNumber);
     } else {
       console.error(error);
     }
 
     setLoading(false);
+    // console.log("Search:", search);
+    // console.log("Data:", data);
+    // console.log("Error:", error);
   };
 
   // ADD NOTE
@@ -167,6 +226,20 @@ export const StudentProvider = ({ children }) => {
       value={{
         students,
         loading,
+        page,
+        totalCount,
+        limit,
+        fetchStudents,
+        setPage,
+        search,
+        setSearch,
+        status,
+        setStatus,
+        country,
+        setCountry,
+        sortBy,
+        setSortBy,
+
         addStudent,
         updateStudent,
         deleteStudent,
