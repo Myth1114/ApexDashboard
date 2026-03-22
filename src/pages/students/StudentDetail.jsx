@@ -20,7 +20,7 @@ export default function StudentDetail() {
   }
 
   return (
-    <div className="student-detail-container">
+    <div className="StudentDetailContainer">
       <div className="student-profile-card">
         <div className="detail-header">
           <div>
@@ -98,42 +98,43 @@ export default function StudentDetail() {
           </button>
         </div>
       </div>
-
-      <div className="document-grid">
-        <h3>Document Checklist</h3>
-        <div className="documentItems">
-          {Object.keys(student.documents).map((docKey) => (
-            <label key={docKey} className="document-item">
-              <input
-                type="checkbox"
-                checked={student.documents[docKey]}
-                onChange={() =>
-                  updateStudent(student.id, {
-                    documents: {
-                      ...student.documents,
-                      [docKey]: !student.documents[docKey],
-                    },
-                  })
-                }
-              />
-              {docKey}
-            </label>
-          ))}
+      <div className="student-detail-container">
+        <div className="document-grid">
+          <h3>Document Checklist</h3>
+          <div className="documentItems">
+            {Object.keys(student.documents).map((docKey) => (
+              <label key={docKey} className="document-item">
+                <input
+                  type="checkbox"
+                  checked={student.documents[docKey]}
+                  onChange={() =>
+                    updateStudent(student.id, {
+                      documents: {
+                        ...student.documents,
+                        [docKey]: !student.documents[docKey],
+                      },
+                    })
+                  }
+                />
+                {docKey}
+              </label>
+            ))}
+          </div>
         </div>
-      </div>
 
-      <Timeline timeline={student.timeline} />
-      <Notes student={student} />
-      <ConfirmModal
-        isOpen={isDeleteOpen}
-        title="Delete Student"
-        message="Are you sure you want to delete this student? This action cannot be undone."
-        onCancel={() => setIsDeleteOpen(false)}
-        onConfirm={() => {
-          deleteStudent(student.id);
-          navigate("/");
-        }}
-      />
+        <Timeline timeline={student.timeline} />
+        <Notes student={student} />
+        <ConfirmModal
+          isOpen={isDeleteOpen}
+          title="Delete Student"
+          message="Are you sure you want to delete this student? This action cannot be undone."
+          onCancel={() => setIsDeleteOpen(false)}
+          onConfirm={() => {
+            deleteStudent(student.id);
+            navigate("/");
+          }}
+        />
+      </div>
     </div>
   );
 }

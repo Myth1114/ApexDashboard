@@ -5,6 +5,10 @@
 }
 
 .student-profile-card {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  align-items: center;
   background: white;
   border-radius: 16px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
@@ -12,8 +16,8 @@
 
 .detail-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .status-badge {
@@ -94,10 +98,11 @@
 }
 
 .detail-section {
-  margin-top: 25px;
   margin-bottom: 40px;
 }
-
+.detail-section p {
+  margin: 10px 0;
+}
 .detail-section h3 {
   margin-bottom: 10px;
   font-size: 16px;

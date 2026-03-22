@@ -11,6 +11,7 @@ export default function Sidebar({ isOpen, closeSidebar }) {
           <HomeIcon />
           <h2>Apex Global</h2>
         </div>
+
         <ul>
           <li>
             <NavLink to="/" end onClick={closeSidebar}>

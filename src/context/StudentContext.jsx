@@ -17,12 +17,19 @@ export const StudentProvider = ({ children }) => {
   const [country, setCountry] = useState("");
   const [sortBy, setSortBy] = useState("newest");
 
+  const [stats, setStats] = useState({
+    totalStudents: 0,
+    pendingApplications: 0,
+    visaApproved: 0,
+  });
+
   useEffect(() => {
     // 🔥 Listen for auth changes
     const { data: listener } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         if (session?.user) {
           fetchStudents(); // ✅ fetch AFTER login
+          fetchDashboardStats();
         } else {
           setStudents([]); // clear on logout
         }
@@ -34,6 +41,7 @@ export const StudentProvider = ({ children }) => {
       const { data } = await supabase.auth.getUser();
       if (data.user) {
         fetchStudents();
+        fetchDashboardStats();
       }
     };
 
@@ -43,6 +51,30 @@ export const StudentProvider = ({ children }) => {
       listener.subscription.unsubscribe();
     };
   }, []);
+  const fetchDashboardStats = async () => {
+    // TOTAL STUDENTS
+    const { count: total } = await supabase
+      .from("students")
+      .select("*", { count: "exact", head: true });
+
+    // PENDING APPLICATIONS
+    const { count: pending } = await supabase
+      .from("students")
+      .select("*", { count: "exact", head: true })
+      .in("status", ["Inquiry", "Documents Pending", "Applied"]);
+
+    // VISA APPROVED
+    const { count: approved } = await supabase
+      .from("students")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "Visa Approved");
+
+    setStats({
+      totalStudents: total || 0,
+      pendingApplications: pending || 0,
+      visaApproved: approved || 0,
+    });
+  };
   useEffect(() => {
     const channel = supabase
       .channel("students-changes")
@@ -65,10 +97,10 @@ export const StudentProvider = ({ children }) => {
           if (payload.eventType === "DELETE") {
             setStudents((prev) => prev.filter((s) => s.id !== payload.old.id));
           }
+          fetchDashboardStats();
         }
       )
       .subscribe();
-
     return () => {
       supabase.removeChannel(channel);
     };
@@ -101,8 +133,6 @@ export const StudentProvider = ({ children }) => {
 
     let query = supabase.from("students").select("*", { count: "exact" });
 
-    // SEARCH
-
     // STATUS
     if (status) {
       query = query.eq("status", status);
@@ -130,6 +160,7 @@ export const StudentProvider = ({ children }) => {
       setPage(pageNumber);
     } else {
       console.error(error);
+      toast.error("Failed to load students ❌");
     }
 
     setLoading(false);
@@ -157,13 +188,14 @@ export const StudentProvider = ({ children }) => {
       .eq("id", studentId)
       .select();
 
-    if (!error) {
+    if (!error && data) {
       setStudents((prev) =>
         prev.map((s) => (s.id === studentId ? data[0] : s))
       );
       toast.success("Note added 📝");
     } else {
-      toast.error("Failed to add note ❌");
+      console.error(error);
+      toast.error(error?.message || "Failed to add note ❌");
     }
   };
 
@@ -174,11 +206,13 @@ export const StudentProvider = ({ children }) => {
       .insert([studentData])
       .select();
 
-    if (!error) {
+    if (!error && data) {
       setStudents((prev) => [...prev, data[0]]);
       toast.success("Student added ✅");
+      fetchDashboardStats();
     } else {
-      toast.error("Failed ❌");
+      console.error(error);
+      toast.error(error?.message || "Failed to add student ❌");
     }
   };
 
@@ -206,19 +240,28 @@ export const StudentProvider = ({ children }) => {
       .eq("id", id)
       .select();
 
-    if (!error) {
+    if (!error && data) {
       setStudents((prev) => prev.map((s) => (s.id === id ? data[0] : s)));
       toast.success("Student updated ✏️");
+      fetchDashboardStats();
     } else {
-      toast.error("Update failed ❌");
+      console.error(error);
+      toast.error(error?.message || "Update failed ❌");
     }
   };
 
   // DELETE STUDENT
   const deleteStudent = async (id) => {
-    await supabase.from("students").delete().eq("id", id);
-    setStudents((prev) => prev.filter((s) => s.id !== id));
-    toast.success("Student deleted 🗑️");
+    const { error } = await supabase.from("students").delete().eq("id", id);
+
+    if (!error) {
+      setStudents((prev) => prev.filter((s) => s.id !== id));
+      toast.success("Student deleted 🗑️");
+      fetchDashboardStats();
+    } else {
+      console.error(error);
+      toast.error("Delete failed ❌");
+    }
   };
 
   return (
@@ -239,7 +282,7 @@ export const StudentProvider = ({ children }) => {
         setCountry,
         sortBy,
         setSortBy,
-
+        stats,
         addStudent,
         updateStudent,
         deleteStudent,

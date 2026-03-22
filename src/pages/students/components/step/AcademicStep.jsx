@@ -1,7 +1,7 @@
 import Input from "../Input";
 import "../../../../styles/steps.css";
 
-export default function AcademicStep({ formData, updateField }) {
+export default function AcademicStep({ formData, updateField, errors }) {
   return (
     <div className="academic-grid">
       <Input
@@ -10,11 +10,15 @@ export default function AcademicStep({ formData, updateField }) {
         onChange={(e) =>
           updateField("academic", "highestLevelofEducation", e.target.value)
         }
+        required
+        error={errors.highestLevelofEducation}
       />
       <Input
         label="GPA or Percentage"
         value={formData.academic.GPA}
         onChange={(e) => updateField("academic", "GPA", e.target.value)}
+        required
+        error={errors.GPA}
       />
       <Input
         label="Preferred Country"
@@ -22,6 +26,8 @@ export default function AcademicStep({ formData, updateField }) {
         onChange={(e) =>
           updateField("academic", "preferredCountry", e.target.value)
         }
+        required
+        error={errors.preferredCountry}
       />
 
       <Input
@@ -30,6 +36,8 @@ export default function AcademicStep({ formData, updateField }) {
         onChange={(e) =>
           updateField("academic", "preferredUniversity", e.target.value)
         }
+        required
+        error={errors.preferredUniversity}
       />
 
       <Input
@@ -38,11 +46,15 @@ export default function AcademicStep({ formData, updateField }) {
         onChange={(e) =>
           updateField("academic", "preferredCourse", e.target.value)
         }
+        required
+        error={errors.preferredCourse}
       />
       <Input
         label="Intake"
         value={formData.academic.intake}
         onChange={(e) => updateField("academic", "intake", e.target.value)}
+        required
+        error={errors.intake}
       />
 
       <Input
