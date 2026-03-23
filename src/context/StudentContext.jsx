@@ -16,7 +16,8 @@ export const StudentProvider = ({ children }) => {
   const [status, setStatus] = useState("");
   const [country, setCountry] = useState("");
   const [sortBy, setSortBy] = useState("newest");
-
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [stats, setStats] = useState({
     totalStudents: 0,
     pendingApplications: 0,
@@ -30,6 +31,7 @@ export const StudentProvider = ({ children }) => {
         if (session?.user) {
           fetchStudents(); // ✅ fetch AFTER login
           fetchDashboardStats();
+          fetchNotifications();
         } else {
           setStudents([]); // clear on logout
         }
@@ -42,6 +44,7 @@ export const StudentProvider = ({ children }) => {
       if (data.user) {
         fetchStudents();
         fetchDashboardStats();
+        fetchNotifications();
       }
     };
 
@@ -103,6 +106,23 @@ export const StudentProvider = ({ children }) => {
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
+    };
+  }, []);
+
+  useEffect(() => {
+    const notifChannel = supabase
+      .channel("notifications-changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "notifications" },
+        () => {
+          fetchNotifications(); // ✅ ALWAYS REFETCH
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(notifChannel);
     };
   }, []);
 
@@ -168,7 +188,50 @@ export const StudentProvider = ({ children }) => {
     // console.log("Data:", data);
     // console.log("Error:", error);
   };
+  const fetchNotifications = async () => {
+    const { data, error } = await supabase
+      .from("notifications")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(10);
 
+    if (!error && data) {
+      setNotifications(data);
+
+      const unread = data.filter((n) => !n.read).length;
+      setUnreadCount(unread);
+    } else {
+      console.error(error);
+    }
+  };
+  const createNotification = async ({ message, type, studentId }) => {
+    const { error } = await supabase.from("notifications").insert([
+      {
+        message,
+        type,
+        student_id: studentId,
+        read: false,
+        created_at: new Date().toISOString(),
+      },
+    ]);
+
+    if (error) {
+      console.error("Notification error:", error);
+    }
+  };
+
+  const markAsRead = async (id) => {
+    const { error } = await supabase
+      .from("notifications")
+      .update({ read: true })
+      .eq("id", id);
+
+    if (!error) {
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+
+      setUnreadCount((prev) => Math.max(prev - 1, 0));
+    }
+  };
   // ADD NOTE
   const addNote = async (studentId, message) => {
     const student = students.find((s) => s.id === studentId);
@@ -181,7 +244,6 @@ export const StudentProvider = ({ children }) => {
     };
 
     const updatedNotes = [...(student.notes ?? []), newNote];
-
     const { data, error } = await supabase
       .from("students")
       .update({ notes: updatedNotes })
@@ -192,6 +254,14 @@ export const StudentProvider = ({ children }) => {
       setStudents((prev) =>
         prev.map((s) => (s.id === studentId ? data[0] : s))
       );
+      // 🔔 Notification
+      await createNotification({
+        message: `New note added for ${
+          student.personal?.firstName || "student"
+        }`,
+        type: "note",
+        studentId: studentId,
+      });
       toast.success("Note added 📝");
     } else {
       console.error(error);
@@ -207,9 +277,15 @@ export const StudentProvider = ({ children }) => {
       .select();
 
     if (!error && data) {
-      setStudents((prev) => [...prev, data[0]]);
+      const newStudent = data[0];
+      setStudents((prev) => [...prev, newStudent]);
+      // 🔔 Notification
+      await createNotification({
+        message: `New student added: ${studentData.personal.firstName} ${studentData.personal.lastName}`,
+        type: "new_student",
+        studentId: newStudent.id,
+      });
       toast.success("Student added ✅");
-      fetchDashboardStats();
     } else {
       console.error(error);
       toast.error(error?.message || "Failed to add student ❌");
@@ -225,9 +301,20 @@ export const StudentProvider = ({ children }) => {
     if (updates.status && updates.status !== student.status) {
       newTimeline.push({
         id: Date.now(),
-        message: `Status changed from ${student.status} to ${updates.status}`,
+        message: `${student.personal?.firstName || ""} status updated to ${
+          updates.status
+        }`,
         date: new Date().toISOString(),
         type: "status",
+      });
+
+      // 🔔 Notification
+      await createNotification({
+        message: `${
+          student.personal?.firstName || "Student"
+        } status updated to ${updates.status}`,
+        type: "status",
+        studentId: id,
       });
     }
 
@@ -287,6 +374,10 @@ export const StudentProvider = ({ children }) => {
         updateStudent,
         deleteStudent,
         addNote,
+        notifications,
+        unreadCount,
+        fetchNotifications,
+        markAsRead,
       }}
     >
       {children}

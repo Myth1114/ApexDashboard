@@ -21,8 +21,9 @@
   color: #ffffff;
   padding: 22px;
   border-radius: var(--radius);
-  box-shadow: var(--shadow-card-md);
-  border: 1px solid #dce3ed;
+  -webkit-box-shadow: 0px 10px 13px -7px #000000,
+    5px 6px 12px -4px rgba(0, 0, 0, 0);
+  box-shadow: 0px 10px 13px -11px #000000, 5px 6px 12px -4px rgba(0, 0, 0, 0);
   display: flex;
   align-items: center;
   flex-direction: column-reverse;
@@ -238,7 +239,8 @@ tbody tr:hover {
   border-radius: 14px;
   cursor: pointer;
   transition: 0.3s ease;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+    rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 }
 
 .country-card:hover {
@@ -340,8 +342,10 @@ tbody tr:hover {
   border-radius: 18px;
   margin-top: 20px;
   color: white;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em,
+    rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em,
+    rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
+  /* border: 1px solid rgba(255, 255, 255, 0.05); */
   transition: all ease-in-out 250ms;
   cursor: pointer;
 }
