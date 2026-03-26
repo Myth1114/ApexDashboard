@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useStudents } from "../../../context/useStudents";
-
+import { NotebookPen } from "lucide-react";
 export default function Notes({ student }) {
   const { addNote } = useStudents();
   const [noteText, setNoteText] = useState("");
@@ -14,7 +14,9 @@ export default function Notes({ student }) {
 
   return (
     <div className="notes-container">
-      <h3>Notes</h3>
+      <h3>
+        <NotebookPen className="titleIcons" /> Notes
+      </h3>
 
       <div className="notes-list">
         {student.notes?.map((note) => (

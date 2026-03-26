@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useStudents } from "../../../context/useStudents";
 import "../../../styles/notofication.css";
-
+import { Bell } from "lucide-react";
 export default function NotificationBell() {
   const { notifications, unreadCount, markAsRead } = useStudents();
   const [open, setOpen] = useState(false);
@@ -10,7 +10,7 @@ export default function NotificationBell() {
     <div className="notification-wrapper">
       {/* 🔔 Bell */}
       <div className="bell" onClick={() => setOpen(!open)}>
-        🔔
+        <Bell className="BellIcon" />
         {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
       </div>
 
@@ -23,20 +23,20 @@ export default function NotificationBell() {
             <p className="empty">No notifications</p>
           ) : (
             notifications.map((n) => (
-              <div
-                key={n.id}
-                className={`notification-item ${n.read ? "read" : "unread"}`}
-              >
+              <div key={n.id} className="notification-item">
+                {/* LEFT ICON */}
+                <div className={`notif-dot ${n.type}`}></div>
+
+                {/* CONTENT */}
                 <div className="notif-content">
                   <p>{n.message}</p>
                   <span>{formatTime(n.created_at)}</span>
                 </div>
 
-                {!n.read && (
-                  <button className="mark-btn" onClick={() => markAsRead(n.id)}>
-                    ✔
-                  </button>
-                )}
+                {/* RIGHT BUTTON */}
+                <button className="mark-btn" onClick={() => markAsRead(n.id)}>
+                  ✔
+                </button>
               </div>
             ))
           )}

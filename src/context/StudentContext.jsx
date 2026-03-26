@@ -23,6 +23,11 @@ export const StudentProvider = ({ children }) => {
     pendingApplications: 0,
     visaApproved: 0,
   });
+  const [analytics, setAnalytics] = useState({
+    status: {},
+    countries: {},
+    monthly: {},
+  });
 
   useEffect(() => {
     // 🔥 Listen for auth changes
@@ -32,6 +37,7 @@ export const StudentProvider = ({ children }) => {
           fetchStudents(); // ✅ fetch AFTER login
           fetchDashboardStats();
           fetchNotifications();
+          fetchAnalytics();
         } else {
           setStudents([]); // clear on logout
         }
@@ -55,28 +61,13 @@ export const StudentProvider = ({ children }) => {
     };
   }, []);
   const fetchDashboardStats = async () => {
-    // TOTAL STUDENTS
-    const { count: total } = await supabase
-      .from("students")
-      .select("*", { count: "exact", head: true });
+    const { data, error } = await supabase.rpc("get_dashboard_stats");
 
-    // PENDING APPLICATIONS
-    const { count: pending } = await supabase
-      .from("students")
-      .select("*", { count: "exact", head: true })
-      .in("status", ["Inquiry", "Documents Pending", "Applied"]);
-
-    // VISA APPROVED
-    const { count: approved } = await supabase
-      .from("students")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "Visa Approved");
-
-    setStats({
-      totalStudents: total || 0,
-      pendingApplications: pending || 0,
-      visaApproved: approved || 0,
-    });
+    if (!error && data) {
+      setStats(data);
+    } else {
+      console.error(error);
+    }
   };
   useEffect(() => {
     const channel = supabase
@@ -84,39 +75,27 @@ export const StudentProvider = ({ children }) => {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "students" },
-        (payload) => {
-          console.log("Realtime change:", payload);
-
-          if (payload.eventType === "INSERT") {
-            setStudents((prev) => [...prev, payload.new]);
-          }
-
-          if (payload.eventType === "UPDATE") {
-            setStudents((prev) =>
-              prev.map((s) => (s.id === payload.new.id ? payload.new : s))
-            );
-          }
-
-          if (payload.eventType === "DELETE") {
-            setStudents((prev) => prev.filter((s) => s.id !== payload.old.id));
-          }
-          fetchDashboardStats();
+        () => {
+          fetchStudents(page); // ✅ refresh list
+          fetchDashboardStats(); // ✅ update KPI
         }
       )
       .subscribe();
+
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
-
+  }, [page]);
+  //Notification changes
   useEffect(() => {
     const notifChannel = supabase
       .channel("notifications-changes")
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "notifications" },
-        () => {
-          fetchNotifications(); // ✅ ALWAYS REFETCH
+        { event: "INSERT", schema: "public", table: "notifications" },
+        (payload) => {
+          setNotifications((prev) => [payload.new, ...prev]);
+          setUnreadCount((prev) => prev + 1);
         }
       )
       .subscribe();
@@ -143,6 +122,17 @@ export const StudentProvider = ({ children }) => {
   useEffect(() => {
     fetchStudents(page);
   }, [page]);
+
+  //Analytics
+  const fetchAnalytics = async () => {
+    const { data, error } = await supabase.rpc("get_analytics");
+
+    if (!error && data) {
+      setAnalytics(data);
+    } else {
+      console.error("Analytics error:", error);
+    }
+  };
 
   // FETCH STUDENTS
   const fetchStudents = async (pageNumber = 1) => {
@@ -204,13 +194,19 @@ export const StudentProvider = ({ children }) => {
       console.error(error);
     }
   };
+
+  //Create Notifications
   const createNotification = async ({ message, type, studentId }) => {
+    const { data: userData } = await supabase.auth.getUser();
+    const user = userData.user;
+
     const { error } = await supabase.from("notifications").insert([
       {
         message,
         type,
         student_id: studentId,
         read: false,
+        user_id: user.id, // ✅ ADD THIS
         created_at: new Date().toISOString(),
       },
     ]);
@@ -219,7 +215,7 @@ export const StudentProvider = ({ children }) => {
       console.error("Notification error:", error);
     }
   };
-
+  //Mark as read
   const markAsRead = async (id) => {
     const { error } = await supabase
       .from("notifications")
@@ -227,6 +223,7 @@ export const StudentProvider = ({ children }) => {
       .eq("id", id);
 
     if (!error) {
+      // 🔥 REMOVE instantly from UI
       setNotifications((prev) => prev.filter((n) => n.id !== id));
 
       setUnreadCount((prev) => Math.max(prev - 1, 0));
@@ -271,24 +268,34 @@ export const StudentProvider = ({ children }) => {
 
   // ADD STUDENT
   const addStudent = async (studentData) => {
+    const { data: userData } = await supabase.auth.getUser();
+    const user = userData.user;
+
     const { data, error } = await supabase
       .from("students")
-      .insert([studentData])
+      .insert([
+        {
+          ...studentData,
+          user_id: user.id, // ✅ ADD THIS
+        },
+      ])
       .select();
 
     if (!error && data) {
       const newStudent = data[0];
-      setStudents((prev) => [...prev, newStudent]);
-      // 🔔 Notification
+
+      await fetchStudents(1); // ✅ correct data
+      await fetchDashboardStats(); // ✅ KPI sync
+
       await createNotification({
         message: `New student added: ${studentData.personal.firstName} ${studentData.personal.lastName}`,
         type: "new_student",
         studentId: newStudent.id,
       });
+
       toast.success("Student added ✅");
     } else {
       console.error(error);
-      toast.error(error?.message || "Failed to add student ❌");
     }
   };
 
@@ -298,6 +305,9 @@ export const StudentProvider = ({ children }) => {
 
     const newTimeline = [...(student.timeline || [])];
 
+    let notificationMessage = null;
+
+    // ✅ STATUS CHANGE
     if (updates.status && updates.status !== student.status) {
       newTimeline.push({
         id: Date.now(),
@@ -308,14 +318,16 @@ export const StudentProvider = ({ children }) => {
         type: "status",
       });
 
-      // 🔔 Notification
-      await createNotification({
-        message: `${
-          student.personal?.firstName || "Student"
-        } status updated to ${updates.status}`,
-        type: "status",
-        studentId: id,
-      });
+      notificationMessage = `${
+        student.personal?.firstName || "Student"
+      } status updated to ${updates.status}`;
+    }
+
+    // ✅ OTHER UPDATE (like phone, name etc.)
+    else {
+      notificationMessage = `${
+        student.personal?.firstName || "Student"
+      } details updated`;
     }
 
     const { data, error } = await supabase
@@ -328,12 +340,19 @@ export const StudentProvider = ({ children }) => {
       .select();
 
     if (!error && data) {
-      setStudents((prev) => prev.map((s) => (s.id === id ? data[0] : s)));
+      await fetchStudents(page);
+      await fetchDashboardStats();
+      fetchAnalytics();
+      // 🔔 ALWAYS CREATE NOTIFICATION
+      await createNotification({
+        message: notificationMessage,
+        type: updates.status ? "status" : "update",
+        studentId: id,
+      });
+
       toast.success("Student updated ✏️");
-      fetchDashboardStats();
     } else {
       console.error(error);
-      toast.error(error?.message || "Update failed ❌");
     }
   };
 
@@ -378,6 +397,8 @@ export const StudentProvider = ({ children }) => {
         unreadCount,
         fetchNotifications,
         markAsRead,
+        analytics,
+        fetchAnalytics,
       }}
     >
       {children}

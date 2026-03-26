@@ -1,5 +1,5 @@
 import "./timeline.css";
-
+import { Clock10 } from "lucide-react";
 export default function Timeline({ timeline }) {
   if (!timeline || timeline.length === 0) {
     return <div className="timeline-empty">No activity yet</div>;
@@ -11,7 +11,10 @@ export default function Timeline({ timeline }) {
 
   return (
     <div className="timeline-container">
-      <h3 className="timeline-title">Activity Timeline</h3>
+      <h3 className="timeline-title">
+        <Clock10 className="titleIcons" />
+        Activity Timeline
+      </h3>
 
       <div className="timeline">
         {sortedTimeline.map((event) => (

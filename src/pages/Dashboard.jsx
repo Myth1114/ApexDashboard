@@ -38,6 +38,7 @@ export default function Dashboard() {
     sortBy,
     setSortBy,
     stats,
+    analytics,
   } = useStudents();
   const navigate = useNavigate();
 
@@ -52,34 +53,6 @@ export default function Dashboard() {
 
   const getCountryKey = (country) =>
     country?.toLowerCase().replace(/\s+/g, "-");
-  const countryStats = students.reduce((acc, student) => {
-    const country = student.academic?.preferredCountry?.trim()?.toUpperCase();
-    if (!country) return acc; // ignore empty countries
-    if (!acc[country]) {
-      acc[country] = 0;
-    }
-    acc[country] += 1;
-    return acc;
-  }, {});
-
-  const countryData = Object.entries(countryStats).map(([country, count]) => ({
-    country,
-    count,
-  }));
-
-  const statusStats = students.reduce((acc, student) => {
-    const status = student.status || "Unknown";
-
-    if (!acc[status]) acc[status] = 0;
-    acc[status] += 1;
-
-    return acc;
-  }, {});
-
-  const statusData = Object.entries(statusStats).map(([status, count]) => ({
-    status,
-    count,
-  }));
 
   const filteredStudents = students.filter((student) => {
     const firstName = student.personal?.firstName || "";
@@ -90,7 +63,44 @@ export default function Dashboard() {
 
     return fullText.includes(debouncedSearch.toLowerCase());
   });
+  const countryData = Object.entries(analytics?.countries || {}).map(
+    ([country, count]) => ({
+      country,
+      count,
+    })
+  );
+  const statusData = Object.entries(analytics?.status || {}).map(
+    ([status, count]) => ({
+      status,
+      count,
+    })
+  );
+  const monthlyData = Object.entries(analytics?.monthly || {}).map(
+    ([month, count]) => ({
+      month,
+      count,
+    })
+  );
 
+  // ✅ FIX ORDER (IMPORTANT)
+  const monthOrder = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  monthlyData.sort(
+    (a, b) => monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month)
+  );
   const handleLogout = async () => {
     await signOut();
     navigate("/login"); // 🔥 IMPORTANT
@@ -122,23 +132,6 @@ export default function Dashboard() {
     Rejected: ["#f87171", "#dc2626"],
   };
 
-  const monthlyStats = students.reduce((acc, student) => {
-    if (!student.created_at) return acc;
-
-    const date = new Date(student.created_at);
-    const month = date.toLocaleString("default", { month: "short" });
-
-    if (!acc[month]) acc[month] = 0;
-    acc[month] += 1;
-
-    return acc;
-  }, {});
-
-  // Convert to array
-  const monthlyData = Object.entries(monthlyStats).map(([month, count]) => ({
-    month,
-    count,
-  }));
   return (
     <>
       <div className="dashboard-wrapper">
@@ -291,10 +284,11 @@ export default function Dashboard() {
                     dominantBaseline="middle"
                     className="donut-center-text"
                   >
-                    {statusData.reduce(
+                    {/* {statusData.reduce(
                       (acc, item) => acc + (item.count || 0),
                       0
-                    )}
+                    )} */}
+                    {stats.totalStudents}
                   </text>
                   <Tooltip
                     contentStyle={{

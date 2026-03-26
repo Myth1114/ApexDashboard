@@ -7,7 +7,7 @@ import "../students/components/common/ConfirmModal";
 import ConfirmModal from "../students/components/common/ConfirmModal";
 import Notes from "./components/Notes";
 import Timeline from "./components/timeline/Timeline";
-
+import { ListChecks } from "lucide-react";
 export default function StudentDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -22,14 +22,102 @@ export default function StudentDetail() {
   return (
     <div className="StudentDetailContainer">
       <div className="student-profile-card">
-        <div className="detail-header">
+        <div className="card-top">
+          <div className="avatar">RS</div>
+          <div className="top-name-group">
+            <div className="name">
+              {student.personal.firstName} {student.personal.lastName}
+            </div>
+            <div className="role">Student Applicant</div>
+          </div>
+          <span
+            className={`status-badge ${
+              STATUS_CONFIG[student.status]?.className || ""
+            }`}
+          >
+            {STATUS_CONFIG[student.status]?.label}
+          </span>
+          <div class="actions">
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => navigate(`/students/edit/${student.id}`)}
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              className="btn btn-delete"
+              onClick={() => setIsDeleteOpen(true)}
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+        <div className="card-body">
+          {/* <!-- Personal Information --> */}
+          <div className="section">
+            <div className="section-title">Personal Information</div>
+            <div className="field-row">
+              <span className="field-label">Phone</span>
+              <span className="field-value">{student.contact.phone}</span>
+            </div>
+            <div className="field-row">
+              <span className="field-label">Email</span>
+              <span className="field-value"> {student.contact.email}</span>
+            </div>
+            <div className="field-row">
+              <span className="field-label">Gender</span>
+              <span className="field-value"> {student.personal.gender}</span>
+            </div>
+            <div className="field-row">
+              <span className="field-label">Date of Birth</span>
+              <span className="field-value">
+                {" "}
+                {student.personal.dateOfBirth}
+              </span>
+            </div>
+          </div>
+
+          {/* <!-- Academic Information --> */}
+          <div className="section">
+            <div className="section-title">Academic Information</div>
+            <div className="field-row">
+              <span className="field-label">Education Level</span>
+              <span className="field-value">
+                {student.academic.highestLevelofEducation}
+              </span>
+            </div>
+            <div className="field-row">
+              <span className="field-label">GPA / Percentage</span>
+              <span className="field-value"> {student.academic.GPA}</span>
+            </div>
+            <div className="field-row">
+              <span className="field-label">Preferred Country</span>
+              <span className="field-value">
+                {student.academic.preferredCountry}
+              </span>
+            </div>
+            <div className="field-row">
+              <span className="field-label">Course</span>
+              <span className="field-value">
+                {student.academic.preferredCourse}
+              </span>
+            </div>
+            <div className="field-row">
+              <span className="field-label">Intake</span>
+              <span className="field-value">
+                <span className="tag">{student.academic.intake}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+        {/* <div className="detail-header">
           <div>
             <h2 className="student-name">
               {student.personal.firstName} {student.personal.lastName}
             </h2>
-            {/* <p className="student-email">{student.contact.email}</p> */}
           </div>
-
           <div
             className={`status-badge ${
               STATUS_CONFIG[student.status]?.className || ""
@@ -37,9 +125,8 @@ export default function StudentDetail() {
           >
             {STATUS_CONFIG[student.status]?.label}
           </div>
-        </div>
-
-        <div className="detail-section">
+        </div> */}
+        {/* <div className="detail-section">
           <h3>Personal Information</h3>
           <p>
             <strong>Phone:</strong> {student.contact.phone}
@@ -56,9 +143,9 @@ export default function StudentDetail() {
             <strong>Date of Birth: </strong>
             {student.personal.dateOfBirth}
           </p>
-        </div>
+        </div> */}
 
-        <div className="detail-section">
+        {/* <div className="detail-section">
           <h3>Academic Information</h3>
           <p>
             <strong>Highest Level of Education:</strong>
@@ -78,9 +165,9 @@ export default function StudentDetail() {
           <p>
             <strong>Intake:</strong> {student.academic.intake}
           </p>
-        </div>
+        </div> */}
 
-        <div className="button-group">
+        {/* <div className="button-group">
           <button
             type="button"
             className="btn btn-primary"
@@ -96,11 +183,14 @@ export default function StudentDetail() {
           >
             Delete
           </button>
-        </div>
+        </div> */}
       </div>
       <div className="student-detail-container">
         <div className="document-grid">
-          <h3>Document Checklist</h3>
+          <h3>
+            <ListChecks className="titleIcons" />
+            Document Checklist
+          </h3>
           <div className="documentItems">
             {Object.keys(student.documents).map((docKey) => (
               <label key={docKey} className="document-item">
