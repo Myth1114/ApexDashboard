@@ -354,6 +354,7 @@ tbody tr:hover {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 18px;
+  color: var(--primary);
 }
 
 .chart-subtitle {
@@ -373,6 +374,7 @@ tbody tr:hover {
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 12px;
+  color: var(--sidebar-bg);
 }
 .status-legend {
   /* margin-left: 20px; */

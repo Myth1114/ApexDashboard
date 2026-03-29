@@ -1,0 +1,45 @@
+.students-page {
+  padding: 20px;
+}
+
+.students-header {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.students-header input,
+.students-header select {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.students-header button {
+  background: #6366f1;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.students-table table {
+  width: 100%;
+  border-collapse: separate;
+  background: white;
+  border-spacing: 5px;
+}
+
+.students-table th,
+.students-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.pagination {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+}

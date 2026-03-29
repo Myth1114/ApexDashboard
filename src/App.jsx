@@ -11,6 +11,9 @@ import "./styles/button.css";
 import ProtectedRoute from "./pages/students/components/ProtectedRoute";
 import Login from "./pages/Login";
 import { ToastContainer } from "react-toastify";
+import Applications from "./pages/Applications";
+import Analytics from "./pages/Analytics";
+import Studentsrecord from "./pages/StudentsRecord";
 
 function Students() {
   return <h1>Student Records</h1>;
@@ -47,6 +50,9 @@ function App() {
             <Route path="students/add" element={<AddStudent />} />
             <Route path="students/:id" element={<StudentDetail />} />
             <Route path="students/edit/:id" element={<EditStudent />} />
+            <Route path="applications" element={<Applications />} />
+            <Route path="analytics" element={<Analytics />} />
+            <Route path="studentsrecord" element={<Studentsrecord />} />
           </Route>
         </Routes>
       </BrowserRouter>

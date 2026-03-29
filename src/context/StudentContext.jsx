@@ -94,8 +94,17 @@ export const StudentProvider = ({ children }) => {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "notifications" },
         (payload) => {
-          setNotifications((prev) => [payload.new, ...prev]);
-          setUnreadCount((prev) => prev + 1);
+          setNotifications((prev) => {
+            const exists = prev.find((n) => n.id === payload.new.id);
+            if (exists) return prev;
+
+            if (payload.new.read) return prev;
+
+            // ✅ ONLY increase count if actually adding
+            setUnreadCount((count) => count + 1);
+
+            return [payload.new, ...prev];
+          });
         }
       )
       .subscribe();
@@ -121,7 +130,7 @@ export const StudentProvider = ({ children }) => {
   // when page changes
   useEffect(() => {
     fetchStudents(page);
-  }, [page]);
+  }, [page, search, status, country]);
 
   //Analytics
   const fetchAnalytics = async () => {
@@ -152,7 +161,12 @@ export const StudentProvider = ({ children }) => {
     if (country) {
       query = query.eq("academic->>preferredCountry", country);
     }
-
+    //search
+    if (search) {
+      query = query.or(
+        `personal->>firstName.ilike.%${search}%,personal->>lastName.ilike.%${search}%`
+      );
+    }
     // SORT
     if (sortBy === "newest") {
       query = query.order("created_at", { ascending: false });
@@ -186,7 +200,7 @@ export const StudentProvider = ({ children }) => {
       .limit(10);
 
     if (!error && data) {
-      setNotifications(data);
+      setNotifications(data.filter((n) => !n.read)); // 🔥 only unread
 
       const unread = data.filter((n) => !n.read).length;
       setUnreadCount(unread);
@@ -222,13 +236,17 @@ export const StudentProvider = ({ children }) => {
       .update({ read: true })
       .eq("id", id);
 
-    if (!error) {
-      // 🔥 REMOVE instantly from UI
-      setNotifications((prev) => prev.filter((n) => n.id !== id));
-
-      setUnreadCount((prev) => Math.max(prev - 1, 0));
+    if (error) {
+      console.error("Mark read error:", error);
+      return;
     }
+
+    // ✅ REMOVE from UI (not update)
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+
+    setUnreadCount((prev) => Math.max(prev - 1, 0));
   };
+
   // ADD NOTE
   const addNote = async (studentId, message) => {
     const student = students.find((s) => s.id === studentId);
@@ -305,29 +323,20 @@ export const StudentProvider = ({ children }) => {
 
     const newTimeline = [...(student.timeline || [])];
 
-    let notificationMessage = null;
+    let isStatusChanged = false;
 
-    // ✅ STATUS CHANGE
+    // ✅ STATUS CHANGE ONLY
     if (updates.status && updates.status !== student.status) {
+      isStatusChanged = true;
+
       newTimeline.push({
         id: Date.now(),
-        message: `${student.personal?.firstName || ""} status updated to ${
-          updates.status
-        }`,
+        message: `${
+          student.personal?.firstName || "Student"
+        } status updated to ${updates.status}`,
         date: new Date().toISOString(),
         type: "status",
       });
-
-      notificationMessage = `${
-        student.personal?.firstName || "Student"
-      } status updated to ${updates.status}`;
-    }
-
-    // ✅ OTHER UPDATE (like phone, name etc.)
-    else {
-      notificationMessage = `${
-        student.personal?.firstName || "Student"
-      } details updated`;
     }
 
     const { data, error } = await supabase
@@ -343,12 +352,17 @@ export const StudentProvider = ({ children }) => {
       await fetchStudents(page);
       await fetchDashboardStats();
       fetchAnalytics();
-      // 🔔 ALWAYS CREATE NOTIFICATION
-      await createNotification({
-        message: notificationMessage,
-        type: updates.status ? "status" : "update",
-        studentId: id,
-      });
+
+      // 🔥 ONLY CREATE NOTIFICATION IF STATUS CHANGED
+      if (isStatusChanged) {
+        await createNotification({
+          message: `${
+            student.personal?.firstName || "Student"
+          } status updated to ${updates.status}`,
+          type: "status",
+          studentId: id,
+        });
+      }
 
       toast.success("Student updated ✏️");
     } else {
