@@ -28,15 +28,15 @@
 }
 
 .avatar {
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: linear-gradient(135deg, #e8672a 0%, #f4a261 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: "Sora", sans-serif;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: #fff;
   flex-shrink: 0;

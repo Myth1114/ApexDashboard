@@ -1,0 +1,62 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.task-modal {
+  background: #0f172a;
+  padding: 25px;
+  border-radius: 14px;
+  width: 400px;
+  color: white;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.task-modal h2 {
+  margin-bottom: 15px;
+}
+
+.task-modal input,
+.task-modal textarea {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #1e293b;
+  color: white;
+}
+
+.task-modal textarea {
+  height: 80px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.cancel {
+  background: #334155;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+}
+
+.save {
+  background: #6366f1;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+}

@@ -8,12 +8,15 @@ import ConfirmModal from "../students/components/common/ConfirmModal";
 import Notes from "./components/Notes";
 import Timeline from "./components/timeline/Timeline";
 import { ListChecks } from "lucide-react";
+import TaskModal from "./components/Taskmodal";
 export default function StudentDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { students, deleteStudent, updateStudent } = useStudents();
   const student = students.find((s) => s.id === id);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
+  const [openTaskModal, setOpenTaskModal] = useState(false);
 
   if (!student) {
     return <div className="student-detail-container">Student not found</div>;
@@ -23,7 +26,10 @@ export default function StudentDetail() {
     <div className="StudentDetailContainer">
       <div className="student-profile-card">
         <div className="card-top">
-          <div className="avatar">RS</div>
+          <div className="avatar">
+            {student.personal.firstName?.[0]}
+            {student.personal.lastName?.[0]}
+          </div>
           <div className="top-name-group">
             <div className="name">
               {student.personal.firstName} {student.personal.lastName}
@@ -51,6 +57,12 @@ export default function StudentDetail() {
               onClick={() => setIsDeleteOpen(true)}
             >
               Delete
+            </button>
+            <button
+              className="btn btn-primary"
+              onClick={() => setOpenTaskModal(true)}
+            >
+              + Add Reminder
             </button>
           </div>
         </div>
@@ -223,6 +235,11 @@ export default function StudentDetail() {
             deleteStudent(student.id);
             navigate("/");
           }}
+        />
+        <TaskModal
+          isOpen={openTaskModal}
+          onClose={() => setOpenTaskModal(false)}
+          studentId={student.id}
         />
       </div>
     </div>

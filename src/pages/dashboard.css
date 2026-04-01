@@ -13,7 +13,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 25px;
-  margin-bottom: 35px;
+  /* margin-bottom: 35px; */
 }
 
 .kpi-card {
@@ -158,7 +158,11 @@ tbody tr {
 tbody tr:hover {
   background: #f9fafb;
 }
-
+.student-profile {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
 .status-badge {
   padding: 5px 10px;
   border-radius: 999px;
@@ -218,21 +222,18 @@ tbody tr:hover {
   background: var(--primary);
 }
 /* Country Section */
-.country-section {
-  margin: 30px 0;
+.countrysection {
+  margin: 60px 0;
 }
 
-.country-section h3 {
-  margin-bottom: 15px;
-}
-
-.country-grid {
+.countrygrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 15px;
+  margin-top: 20px;
+  gap: 10px;
 }
 
-.country-card {
+.countrycard {
   color: white;
   padding: 18px;
   text-align: center;
@@ -243,17 +244,17 @@ tbody tr:hover {
     rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 }
 
-.country-card:hover {
+.countrycard:hover {
   transform: translateY(-4px);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
-.country-name {
+.countryname {
   font-weight: 600;
   font-size: 16px;
 }
 
-.country-count {
+.countrycount {
   font-size: 26px;
   font-weight: 700;
   margin-top: 8px;
@@ -414,3 +415,93 @@ tbody tr:hover {
 .legend-value {
   font-weight: bold;
 }
+.tasks-wrapper {
+  margin: 60px 0;
+}
+.tasks-card {
+  padding: 20px;
+  border-radius: 18px;
+  margin-top: 20px;
+  /* color: white; */
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+    rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+  /* border: 1px solid rgba(255, 255, 255, 0.05); */
+  transition: all ease-in-out 250ms;
+  cursor: pointer;
+}
+
+.task-item {
+  /* display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  background: #334155;
+  padding: 10px;
+  border-radius: 6px; */
+}
+.task-item-minimal {
+  display: flex;
+  /* justify-content: space-between; */
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #ffffff;
+  margin-top: 6px;
+  transition: 0.2s;
+  border: 1px solid var(--border);
+}
+
+.task-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.task-dot {
+  width: 8px;
+  height: 8px;
+  background: orange;
+  border-radius: 50%;
+}
+
+.task-title {
+  font-weight: 500;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.task-description {
+  font-size: 12px;
+}
+.task-student {
+  font-size: 12px;
+}
+
+.task-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.task-time {
+  font-size: 12px;
+  color: #888;
+}
+.overdue .task-dot {
+  background: red;
+}
+.today .task-dot {
+  background: orange;
+}
+.upcoming .task-dot {
+  background: blue;
+}
+/* .task-right button {
+  opacity: 0;
+  transition: 0.2s;
+} */
+
+/* .task-item-minimal:hover .task-right button {
+  opacity: 1;
+} */

@@ -28,6 +28,9 @@ export const StudentProvider = ({ children }) => {
     countries: {},
     monthly: {},
   });
+  const [todayTasks, setTodayTasks] = useState([]);
+  const [overdueTasks, setOverdueTasks] = useState([]);
+  const [upcomingTasks, setUpcomingTasks] = useState([]);
 
   useEffect(() => {
     // 🔥 Listen for auth changes
@@ -38,6 +41,7 @@ export const StudentProvider = ({ children }) => {
           fetchDashboardStats();
           fetchNotifications();
           fetchAnalytics();
+          fetchTodayTasks();
         } else {
           setStudents([]); // clear on logout
         }
@@ -51,6 +55,7 @@ export const StudentProvider = ({ children }) => {
         fetchStudents();
         fetchDashboardStats();
         fetchNotifications();
+        fetchTodayTasks();
       }
     };
 
@@ -96,15 +101,13 @@ export const StudentProvider = ({ children }) => {
         (payload) => {
           setNotifications((prev) => {
             const exists = prev.find((n) => n.id === payload.new.id);
-            if (exists) return prev;
-
-            if (payload.new.read) return prev;
-
-            // ✅ ONLY increase count if actually adding
-            setUnreadCount((count) => count + 1);
+            if (exists || payload.new.read) return prev;
 
             return [payload.new, ...prev];
           });
+
+          // ✅ recalculate instead of blindly increasing
+          setUnreadCount((prev) => prev + 1);
         }
       )
       .subscribe();
@@ -207,6 +210,115 @@ export const StudentProvider = ({ children }) => {
     } else {
       console.error(error);
     }
+  };
+
+  const fetchTodayTasks = async () => {
+    const { data: userData } = await supabase.auth.getUser();
+    const user = userData.user;
+
+    const now = new Date();
+
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
+
+    const futureLimit = new Date();
+    futureLimit.setDate(futureLimit.getDate() + 7);
+
+    const { data, error } = await supabase
+      .from("tasks")
+      .select(
+        `
+        *,
+        students ( id, personal )
+      `
+      )
+      .eq("user_id", user.id)
+      .eq("completed", false)
+      .order("due_date", { ascending: true });
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    // 🔥 Categorize
+    const overdue = [];
+    const today = [];
+    const upcoming = [];
+
+    data.forEach((task) => {
+      const due = new Date(task.due_date);
+
+      if (due < now) {
+        overdue.push(task);
+      } else if (due >= startOfToday && due <= endOfToday) {
+        today.push(task);
+      } else if (due > endOfToday && due <= futureLimit) {
+        upcoming.push(task);
+      }
+    });
+
+    setOverdueTasks(overdue);
+    setTodayTasks(today);
+    setUpcomingTasks(upcoming);
+  };
+
+  const createTask = async ({ title, description, dueDate, studentId }) => {
+    const { data: userData } = await supabase.auth.getUser();
+    const user = userData.user;
+
+    // ✅ INSERT TASK
+    const { error } = await supabase.from("tasks").insert([
+      {
+        title,
+        description,
+        due_date: new Date(dueDate).toISOString(),
+        student_id: studentId,
+        user_id: user.id,
+        completed: false,
+      },
+    ]);
+
+    if (error) {
+      console.error("Task error:", error);
+      toast.error("Task not created ❌");
+      return;
+    }
+
+    toast.success("Task created ✅");
+
+    // ✅ REFRESH TASK UI
+    await fetchTodayTasks();
+
+    // ✅ CREATE NOTIFICATION (THIS WAS MISSING)
+    await supabase.from("notifications").insert([
+      {
+        message: `New task: ${title}`,
+        type: "task",
+        student_id: studentId,
+        read: false,
+      },
+    ]);
+  };
+
+  const markTaskComplete = async (taskId) => {
+    const { error } = await supabase
+      .from("tasks")
+      .update({ completed: true })
+      .eq("id", taskId);
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    // ✅ REMOVE task from ALL lists instantly
+    setTodayTasks((prev) => prev.filter((t) => t.id !== taskId));
+    setOverdueTasks((prev) => prev.filter((t) => t.id !== taskId));
+    setUpcomingTasks((prev) => prev.filter((t) => t.id !== taskId));
   };
 
   //Create Notifications
@@ -413,6 +525,12 @@ export const StudentProvider = ({ children }) => {
         markAsRead,
         analytics,
         fetchAnalytics,
+        createTask,
+        todayTasks,
+        fetchTodayTasks,
+        markTaskComplete,
+        upcomingTasks,
+        overdueTasks,
       }}
     >
       {children}

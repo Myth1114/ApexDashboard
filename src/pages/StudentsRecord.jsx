@@ -86,11 +86,19 @@ export default function Studentsrecord() {
             ) : (
               students.map((student) => (
                 <tr key={student.id}>
-                  <td>
-                    <span>
-                      {student.personal?.firstName} {student.personal?.lastName}
-                    </span>
-                    <span>{student.contact?.email}</span>
+                  <td className="student-profile">
+                    <div className="avatar">
+                      {student.personal.firstName?.[0]}
+                      {student.personal.lastName?.[0]}
+                    </div>
+                    <div className="student-profile-image">
+                      <div className="student-name">
+                        {student.personal.firstName} {student.personal.lastName}
+                      </div>
+                      <div className="student-email">
+                        {student.contact.email}
+                      </div>
+                    </div>
                   </td>
                   <td>{student.contact?.phone || "-"}</td>
                   <td>{student.academic?.preferredCountry || "—"}</td>

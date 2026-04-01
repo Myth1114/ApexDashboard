@@ -39,6 +39,11 @@ export default function Dashboard() {
     setSortBy,
     stats,
     analytics,
+    fetchTodayTasks,
+    todayTasks,
+    markTaskComplete,
+    overdueTasks,
+    upcomingTasks,
   } = useStudents();
   const navigate = useNavigate();
 
@@ -61,13 +66,15 @@ export default function Dashboard() {
     const fullText = `${firstName} ${lastName} ${email}`.toLowerCase();
     return fullText.includes(debouncedSearch.toLowerCase());
   });
+
+  console.log(todayTasks);
   const countryData = Object.entries(analytics?.countries || {}).map(
     ([country, count]) => ({
       country,
       count,
     })
   );
-  console.log(countryData);
+  // console.log(countryData);
 
   const statusData = Object.entries(analytics?.status || {}).map(
     ([status, count]) => ({
@@ -113,6 +120,12 @@ export default function Dashboard() {
 
     return () => clearTimeout(timer);
   }, [search]);
+  useEffect(() => {
+    fetchTodayTasks();
+  }, []);
+  useEffect(() => {
+    fetchTodayTasks();
+  }, [students]);
 
   const COUNTRY_GRADIENTS = {
     australia: ["rgb(107,119,250)", "rgb(63,76,250)"],
@@ -157,21 +170,127 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* countries */}
-        <div className="country-section fade-in-up">
-          <h3>Applications by Country</h3>
+        <div className="tasks-wrapper">
+          <h2>Task Reminder</h2>
+          {/* 🔴 OVERDUE */}
+          {overdueTasks.length > 0 && (
+            <div className="tasks-card overdue">
+              <h3>🔴 Overdue</h3>
 
-          <div className="country-grid">
+              {overdueTasks.map((task) => (
+                <div className="task-item-minimal">
+                  <div className="task-left">
+                    <span className="task-dot"></span>
+
+                    <span className="task-title">{task.title}</span>
+                    <span className="task-description">{task.description}</span>
+
+                    <span className="task-student">
+                      {task.students?.personal?.firstName}{" "}
+                      {task.students?.personal?.lastName}
+                    </span>
+                  </div>
+
+                  <div className="task-right">
+                    <span className="task-time">
+                      {new Date(task.due_date).toLocaleString(undefined, {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })}
+                    </span>
+
+                    <button onClick={() => markTaskComplete(task.id)}>✔</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* 🟡 TODAY */}
+          <div className="tasks-card today">
+            <h3>🟡 Today</h3>
+
+            {todayTasks.length === 0 ? (
+              <p>No tasks 🎉</p>
+            ) : (
+              todayTasks.map((task) => (
+                <div className="task-item-minimal">
+                  <div className="task-left">
+                    <span className="task-dot"></span>
+
+                    <span className="task-title">{task.title}</span>
+                    <span className="task-description">{task.description}</span>
+
+                    <span className="task-student">
+                      {task.students?.personal?.firstName}{" "}
+                      {task.students?.personal?.lastName}
+                    </span>
+                  </div>
+
+                  <div className="task-right">
+                    <span className="task-time">
+                      {new Date(task.due_date).toLocaleString(undefined, {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })}
+                    </span>
+
+                    <button onClick={() => markTaskComplete(task.id)}>✔</button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* 🔵 UPCOMING */}
+          {upcomingTasks.length > 0 && (
+            <div className="tasks-card upcoming">
+              <h3>🔵 Upcoming</h3>
+
+              {upcomingTasks.map((task) => (
+                <div className="task-item-minimal">
+                  <div className="task-left">
+                    <span className="task-dot"></span>
+
+                    <span className="task-title">{task.title}</span>
+                    <span className="task-description">{task.description}</span>
+
+                    <span className="task-student">
+                      {task.students?.personal?.firstName}{" "}
+                      {task.students?.personal?.lastName}
+                    </span>
+                  </div>
+
+                  <div className="task-right">
+                    <span className="task-time">
+                      {new Date(task.due_date).toLocaleString(undefined, {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })}
+                    </span>
+
+                    <button onClick={() => markTaskComplete(task.id)}>✔</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        {/* countries */}
+        <div className="countrysection fade-in-up">
+          <h2>Applications by Country</h2>
+
+          <div className="countrygrid">
             {countryData.map(({ country, count }) => (
               <div
                 key={country}
-                className={`country-card ${country
+                className={`countrycard ${country
                   .toLowerCase()
                   .replace(/\s+/g, "-")}`}
                 onClick={() => setCountry(country)}
               >
-                <div className="country-name">{country}</div>
-                <div className="country-count">{count}</div>
+                <div className="countryname">{country}</div>
+                <div className="countrycount">{count}</div>
               </div>
             ))}
           </div>
@@ -179,7 +298,7 @@ export default function Dashboard() {
         {/* Student Table */}
         <div className="student-table-container fade-in-up">
           <div className="table-header">
-            <h3>Recent Students</h3>
+            <h2>Recent Students</h2>
             {/* <input
             type="text"
             placeholder="Search student..."

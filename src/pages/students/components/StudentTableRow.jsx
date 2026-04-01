@@ -26,11 +26,17 @@ export default function StudentTableRow({ student }) {
 
   return (
     <tr className="student-row">
-      <td>
-        <div className="student-name">
-          {student.personal.firstName} {student.personal.lastName}
+      <td className="student-profile">
+        <div className="avatar">
+          {student.personal.firstName?.[0]}
+          {student.personal.lastName?.[0]}
         </div>
-        <div className="student-email">{student.contact.email}</div>
+        <div className="student-profile-image">
+          <div className="student-name">
+            {student.personal.firstName} {student.personal.lastName}
+          </div>
+          <div className="student-email">{student.contact.email}</div>
+        </div>
       </td>
       <td>{student.academic.preferredCountry}</td>
       <td>{student.academic.preferredCourse}</td>
