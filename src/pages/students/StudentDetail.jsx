@@ -7,8 +7,9 @@ import "../students/components/common/ConfirmModal";
 import ConfirmModal from "../students/components/common/ConfirmModal";
 import Notes from "./components/Notes";
 import Timeline from "./components/timeline/Timeline";
+import TaskModal from "../students/components/TaskModal";
 import { ListChecks } from "lucide-react";
-import TaskModal from "./components/Taskmodal";
+
 export default function StudentDetail() {
   const { id } = useParams();
   const navigate = useNavigate();

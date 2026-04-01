@@ -67,7 +67,7 @@ export default function Dashboard() {
     return fullText.includes(debouncedSearch.toLowerCase());
   });
 
-  console.log(todayTasks);
+  // console.log(todayTasks);
   const countryData = Object.entries(analytics?.countries || {}).map(
     ([country, count]) => ({
       country,
