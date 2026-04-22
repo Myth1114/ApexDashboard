@@ -22,9 +22,9 @@ export default function Topbar({ toggleSidebar }) {
         <NavLink to="/students/add">
           <button className="btn btn-primary">+Add Student</button>
         </NavLink>
-        <button className="btn btn-primary" onClick={handleLogout}>
+        {/* <button className="btn btn-primary" onClick={handleLogout}>
           Logout
-        </button>
+        </button> */}
       </div>
     </div>
   );
