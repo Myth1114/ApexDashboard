@@ -31,17 +31,19 @@ export const StudentProvider = ({ children }) => {
   const [todayTasks, setTodayTasks] = useState([]);
   const [overdueTasks, setOverdueTasks] = useState([]);
   const [upcomingTasks, setUpcomingTasks] = useState([]);
+  const [countries, setCountries] = useState([]);
 
   useEffect(() => {
     // 🔥 Listen for auth changes
     const { data: listener } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         if (session?.user) {
-          fetchStudents(); // ✅ fetch AFTER login
+          fetchStudents();
           fetchDashboardStats();
           fetchNotifications();
           fetchAnalytics();
           fetchTodayTasks();
+          fetchCountries();
         } else {
           setStudents([]); // clear on logout
         }
@@ -56,6 +58,7 @@ export const StudentProvider = ({ children }) => {
         fetchDashboardStats();
         fetchNotifications();
         fetchTodayTasks();
+        fetchCountries();
       }
     };
 
@@ -135,6 +138,11 @@ export const StudentProvider = ({ children }) => {
     fetchStudents(page);
   }, [page, search, status, country]);
 
+  //countries
+  useEffect(() => {
+    fetchCountries();
+  }, []);
+
   //Analytics
   const fetchAnalytics = async () => {
     const { data, error } = await supabase.rpc("get_analytics");
@@ -146,6 +154,19 @@ export const StudentProvider = ({ children }) => {
     }
   };
 
+  // Fetch Countries
+  const fetchCountries = async () => {
+    const { data, error } = await supabase
+      .from("countries")
+      .select("*")
+      .order("name");
+
+    if (!error) {
+      setCountries(data);
+    } else {
+      console.error("Countries error:", error);
+    }
+  };
   // FETCH STUDENTS
   const fetchStudents = async (pageNumber = 1) => {
     setLoading(true);
@@ -531,6 +552,8 @@ export const StudentProvider = ({ children }) => {
         markTaskComplete,
         upcomingTasks,
         overdueTasks,
+        countries,
+        fetchCountries,
       }}
     >
       {children}

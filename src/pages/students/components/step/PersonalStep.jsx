@@ -2,7 +2,7 @@ import Input from "../Input";
 import "../../../../styles/steps.css";
 
 export default function PersonalStep({ formData, updateField, errors }) {
-  console.log("FORM DATA:", formData);
+  // console.log("FORM DATA:", formData);
   return (
     <div className="personal-grid">
       <Input
