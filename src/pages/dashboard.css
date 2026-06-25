@@ -306,7 +306,10 @@ tbody tr:hover {
     rgba(253, 126, 20, 1) 51%
   );
 }
-
+.india {
+  background: #ff9933;
+  color: #ffffff;
+}
 /* Default – Neutral Luxury Grey */
 .default {
   background: linear-gradient(135deg, #434343, #000000);
